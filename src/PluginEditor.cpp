@@ -134,7 +134,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     g.fillAll(RetroColours::background);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 120, 155, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 388, 1, RetroColours::textCyan);
 
     // Waveform control labels
     BitmapFont::drawText(g, "SPEED", 178, 140, 1, RetroColours::textWhite);
