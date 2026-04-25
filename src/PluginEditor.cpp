@@ -5,7 +5,7 @@
 YmvstEditor::YmvstEditor(YmvstProcessor& p)
     : AudioProcessorEditor(p), processor(p)
 {
-    setSize(640, 400);
+    setSize(800, 480);
 
     // Add all children
     std::initializer_list<juce::Component*> allChildren = {
@@ -162,50 +162,49 @@ void YmvstEditor::paint(juce::Graphics& g)
     g.fillAll(RetroColours::background);
 
     // Waveform control labels
-    BitmapFont::drawText(g, "SPEED", 178, 140, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "LENGTH", 245, 140, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SPEED", 210, 164, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "LENGTH", 315, 164, 1, RetroColours::textWhite);
 
     // Noise labels
-    BitmapFont::drawText(g, "NOISE FRE.", 80, 198, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE FRE.", 88, 236, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
-    BitmapFont::drawText(g, "SPEED", 540, 38, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SPEED", 680, 48, 1, RetroColours::textWhite);
 
     // Labels above the channel/tuning row
-    BitmapFont::drawText(g, "CH1", 325, 94, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "CH2", 365, 94, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "CH3", 405, 94, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "FINE TUNE", 455, 94, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "MAIN", 580, 94, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "CH1", 412, 116, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "CH2", 458, 116, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "CH3", 504, 116, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "FINE TUNE", 568, 116, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "MAIN", 738, 116, 1, RetroColours::textWhite);
 
     // Arpeggiator labels
-    BitmapFont::drawText(g, "T1", 505, 196, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "SPEED", 505, 246, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "ARP", 570, 246, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "LEN", 570, 256, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "T1", 600, 190, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SPEED", 620, 230, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "ARP LEN", 700, 230, 1, RetroColours::textWhite);
 
-    // Preset name (inside preset section)
+    // Preset name
     if (processor.getCurrentProgram() >= 0 && processor.getCurrentProgram() < NUM_FACTORY_PRESETS)
         BitmapFont::drawText(g, FACTORY_PRESETS[processor.getCurrentProgram()].name,
-                             70, 253, 1, RetroColours::textCyan);
+                             80, 299, 1, RetroColours::textCyan);
 
     // Controls section labels
-    BitmapFont::drawText(g, "PORTAMENTO", 195, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "SOUND", 310, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND DEPTH", 300, 306, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND SPEED", 300, 332, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE+OO", 420, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND DEPTH", 415, 306, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREM.DEPTH", 535, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREM.SPEED", 535, 332, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "PORTAMENTO", 255, 340, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SOUND", 400, 340, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND DEPTH", 395, 348, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND SPEED", 395, 372, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE+OO", 540, 340, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND DEPTH", 535, 348, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREM.DEPTH", 680, 336, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREM.SPEED", 680, 372, 1, RetroColours::textWhite);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 380, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 466, 1, RetroColours::textCyan);
 
-    // Help overlay
+    // Help overlay (solid background so text is legible)
     if (showingHelp)
     {
-        g.setColour(juce::Colour(0xee202038));
+        g.setColour(RetroColours::background);
         g.fillRect(getLocalBounds());
 
         int y = 20;
@@ -244,63 +243,63 @@ void YmvstEditor::paint(juce::Graphics& g)
 
 void YmvstEditor::resized()
 {
-    // Section borders (all content must fit inside)
-    ampWfLabel.setBounds(5, 5, 300, 170);
-    hwWfLabel.setBounds(310, 5, 325, 128);
-    noiseLabel.setBounds(5, 182, 345, 48);
-    arpLabel.setBounds(355, 182, 280, 102);
-    presetLabel.setBounds(5, 236, 345, 38);
-    controlsLabel.setBounds(5, 280, 630, 100);
+    // Section borders
+    ampWfLabel.setBounds(8, 8, 380, 200);
+    hwWfLabel.setBounds(396, 8, 396, 155);
+    noiseLabel.setBounds(8, 216, 380, 55);
+    arpLabel.setBounds(396, 170, 396, 100);
+    presetLabel.setBounds(8, 278, 380, 42);
+    controlsLabel.setBounds(8, 328, 784, 110);
 
     // Amplitude waveform editor + scope
-    waveformEditor.setBounds(15, 20, 150, 118);
-    scopeDisplay.setBounds(170, 20, 128, 118);
+    waveformEditor.setBounds(18, 24, 180, 140);
+    scopeDisplay.setBounds(206, 24, 172, 140);
 
     // Waveform controls
-    wfOnBtn.setBounds(15, 148, 40, 14);
-    wfOneShotBtn.setBounds(58, 148, 55, 14);
-    wfSpeed.setBounds(170, 148, 60, 14);
-    wfLength.setBounds(242, 148, 55, 14);
+    wfOnBtn.setBounds(18, 174, 45, 16);
+    wfOneShotBtn.setBounds(70, 174, 60, 16);
+    wfSpeed.setBounds(206, 174, 70, 16);
+    wfLength.setBounds(310, 174, 70, 16);
 
     // Hardware envelope section
-    hwSelector.setBounds(320, 18, 200, 66);
-    envSpeed.setBounds(540, 50, 80, 14);
+    hwSelector.setBounds(406, 24, 240, 80);
+    envSpeed.setBounds(680, 60, 100, 16);
 
     // Channel on/off + tuning row
-    ch1Btn.setBounds(320, 104, 35, 14);
-    ch2Btn.setBounds(360, 104, 35, 14);
-    ch3Btn.setBounds(400, 104, 35, 14);
-    fineTune1.setBounds(445, 104, 40, 14);
-    fineTune2.setBounds(487, 104, 40, 14);
-    fineTune3.setBounds(529, 104, 40, 14);
-    mainTune.setBounds(575, 104, 50, 14);
+    ch1Btn.setBounds(406, 126, 40, 16);
+    ch2Btn.setBounds(452, 126, 40, 16);
+    ch3Btn.setBounds(498, 126, 40, 16);
+    fineTune1.setBounds(560, 126, 48, 16);
+    fineTune2.setBounds(612, 126, 48, 16);
+    fineTune3.setBounds(664, 126, 48, 16);
+    mainTune.setBounds(732, 126, 52, 16);
 
-    // Noise (inside noiseLabel box: y=182..230)
-    noiseOnBtn.setBounds(15, 196, 50, 14);
-    noiseFreq.setBounds(150, 196, 80, 14);
+    // Noise
+    noiseOnBtn.setBounds(18, 234, 55, 16);
+    noiseFreq.setBounds(170, 234, 90, 16);
 
-    // Arpeggiator (inside arpLabel box: y=182..284)
-    arpOnBtn.setBounds(365, 196, 50, 14);
-    arpSyncBtn.setBounds(365, 216, 90, 14);
-    arpT1.setBounds(530, 196, 55, 14);
-    arpSpeed.setBounds(505, 256, 55, 14);
-    arpLength.setBounds(570, 256, 55, 14);
+    // Arpeggiator
+    arpOnBtn.setBounds(406, 188, 55, 16);
+    arpSyncBtn.setBounds(406, 210, 100, 16);
+    arpT1.setBounds(620, 188, 60, 16);
+    arpSpeed.setBounds(620, 240, 60, 16);
+    arpLength.setBounds(700, 240, 60, 16);
 
-    // Preset (inside presetLabel box: y=236..274)
-    presetSelector.setBounds(15, 250, 50, 14);
+    // Preset
+    presetSelector.setBounds(18, 296, 55, 16);
 
-    // Controls section (inside controlsLabel box: y=280..380)
-    panicBtn.setBounds(15, 296, 55, 14);
-    polyBtn.setBounds(75, 296, 60, 14);
-    helpBtn.setBounds(140, 296, 45, 14);
-    sidOnBtn.setBounds(15, 316, 70, 14);
-    portaRate.setBounds(200, 326, 70, 14);
-    sBendDepth.setBounds(310, 316, 60, 14);
-    sBendSpeed.setBounds(310, 340, 60, 14);
-    nBendDepth.setBounds(430, 316, 60, 14);
-    nBendSpeed.setBounds(430, 340, 60, 14);
-    tremDepth.setBounds(550, 316, 60, 14);
-    tremSpeed.setBounds(550, 340, 60, 14);
+    // Controls section
+    panicBtn.setBounds(18, 346, 60, 16);
+    polyBtn.setBounds(86, 346, 65, 16);
+    helpBtn.setBounds(160, 346, 50, 16);
+    sidOnBtn.setBounds(18, 370, 75, 16);
+    portaRate.setBounds(260, 370, 80, 16);
+    sBendDepth.setBounds(400, 356, 70, 16);
+    sBendSpeed.setBounds(400, 380, 70, 16);
+    nBendDepth.setBounds(540, 356, 70, 16);
+    nBendSpeed.setBounds(540, 380, 70, 16);
+    tremDepth.setBounds(680, 346, 70, 16);
+    tremSpeed.setBounds(680, 380, 70, 16);
 }
 
 void YmvstEditor::connectCallbacks()
