@@ -9,7 +9,7 @@ YmvstEditor::YmvstEditor(YmvstProcessor& p)
 
     // Add all children
     std::initializer_list<juce::Component*> allChildren = {
-        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel, &presetLabel, &portaLabel, &controlsLabel,
+        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel, &presetLabel, &sidLabel, &portaLabel, &controlsLabel,
         &waveformEditor, &scopeDisplay, &wfOnBtn, &wfOneShotBtn, &wfSpeed, &wfLength,
         &hwSelector, &envSpeed, &mainTune, &fineTune1, &fineTune2, &fineTune3,
         &noiseOnBtn, &noiseFreq,
@@ -174,7 +174,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "LENGTH", 315, 155, 1, RetroColours::textWhite);
 
     // Noise labels
-    BitmapFont::drawText(g, "NOISE FRE.", 88, 222, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE FRE.", 88, 224, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
     BitmapFont::drawText(g, "SPEED", 680, 44, 1, RetroColours::textWhite);
@@ -197,15 +197,15 @@ void YmvstEditor::paint(juce::Graphics& g)
                              80, 279, 1, RetroColours::textCyan);
 
     // Controls labels
-    BitmapFont::drawText(g, "SOUND BEND", 420, 264, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 420, 290, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE BEND", 540, 264, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 540, 290, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREMOLO", 680, 264, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 680, 290, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SOUND BEND", 420, 272, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 420, 298, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE BEND", 548, 272, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 548, 298, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREMOLO", 680, 272, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 680, 298, 1, RetroColours::textWhite);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 366, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 356, 1, RetroColours::textCyan);
 
     // Help overlay (solid background so text is legible)
     if (showingHelp)
@@ -253,14 +253,15 @@ void YmvstEditor::resized()
     ampWfLabel.setBounds(8, 8, 380, 190);
     hwWfLabel.setBounds(396, 8, 396, 148);
 
-    // Row 2: Noise (left) + Arpeggiator (right)  y=204..260
-    noiseLabel.setBounds(8, 204, 240, 50);
+    // Row 2: Noise (left) + Arpeggiator (right)
+    noiseLabel.setBounds(8, 204, 280, 50);
     arpLabel.setBounds(396, 162, 396, 95);
 
-    // Row 3: Preset (left) + Portamento (right of preset, left of controls)  y=260..298
-    presetLabel.setBounds(8, 260, 240, 38);
-    portaLabel.setBounds(248, 254, 140, 50);
-    controlsLabel.setBounds(396, 258, 396, 76);
+    // Row 3: Preset | SID | Portamento | Controls
+    presetLabel.setBounds(8, 260, 200, 38);
+    sidLabel.setBounds(216, 260, 80, 38);
+    portaLabel.setBounds(304, 260, 84, 38);
+    controlsLabel.setBounds(396, 262, 396, 82);
 
     // Row 4: Controls  y=304..400
     // (controls section is now right-side only, buttons are left)
@@ -285,8 +286,8 @@ void YmvstEditor::resized()
     mainTune.setBounds(732, 118, 52, 16);
 
     // --- Noise ---
-    noiseOnBtn.setBounds(18, 220, 55, 16);
-    noiseFreq.setBounds(120, 220, 80, 16);
+    noiseOnBtn.setBounds(18, 222, 55, 16);
+    noiseFreq.setBounds(160, 222, 80, 16);
 
     // --- Arpeggiator ---
     arpOnBtn.setBounds(406, 180, 55, 16);
@@ -298,21 +299,23 @@ void YmvstEditor::resized()
     // --- Preset ---
     presetSelector.setBounds(18, 276, 55, 16);
 
-    // --- Portamento + SID ---
-    sidOnBtn.setBounds(268, 262, 75, 16);
-    portaRate.setBounds(268, 282, 80, 16);
+    // --- SID ---
+    sidOnBtn.setBounds(224, 276, 65, 16);
+
+    // --- Portamento ---
+    portaRate.setBounds(312, 276, 68, 16);
 
     // --- Controls (right side) ---
     panicBtn.setBounds(18, 304, 60, 16);
     polyBtn.setBounds(86, 304, 65, 16);
     helpBtn.setBounds(160, 304, 50, 16);
 
-    sBendDepth.setBounds(420, 274, 70, 16);
-    sBendSpeed.setBounds(420, 298, 70, 16);
-    nBendDepth.setBounds(540, 274, 70, 16);
-    nBendSpeed.setBounds(540, 298, 70, 16);
-    tremDepth.setBounds(680, 274, 70, 16);
-    tremSpeed.setBounds(680, 298, 70, 16);
+    sBendDepth.setBounds(420, 282, 70, 16);
+    sBendSpeed.setBounds(420, 306, 70, 16);
+    nBendDepth.setBounds(548, 282, 70, 16);
+    nBendSpeed.setBounds(548, 306, 70, 16);
+    tremDepth.setBounds(680, 282, 70, 16);
+    tremSpeed.setBounds(680, 306, 70, 16);
 }
 
 void YmvstEditor::connectCallbacks()

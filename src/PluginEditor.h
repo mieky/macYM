@@ -35,6 +35,7 @@ private:
     SectionLabel noiseLabel    { "NOISE" };
     SectionLabel arpLabel      { "ARPEGGIATOR" };
     SectionLabel presetLabel   { "PRESET" };
+    SectionLabel sidLabel      { "SID" };
     SectionLabel portaLabel    { "PORTAMENTO" };
     SectionLabel controlsLabel { "CONTROLS" };
 
