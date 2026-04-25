@@ -10,12 +10,12 @@ if [ ! -f build/build.ninja ] && [ ! -f build/Makefile ]; then
 fi
 
 echo "Building..."
-cmake --build build --target ymvst_VST3 --target ymvst_AU --target ymvst_Standalone --config Release -j$(sysctl -n hw.ncpu)
+cmake --build build --target macym_VST3 --target macym_AU --target macym_Standalone --config Release -j$(sysctl -n hw.ncpu)
 
 echo ""
 echo "Done. Artifacts:"
-echo "  VST3:       build/ymvst_artefacts/Release/VST3/ymVST.vst3"
-echo "  AU:         build/ymvst_artefacts/Release/AU/ymVST.component"
-echo "  Standalone:  build/ymvst_artefacts/Release/Standalone/ymVST.app"
+echo "  VST3:       build/macym_artefacts/Release/VST3/macYM.vst3"
+echo "  AU:         build/macym_artefacts/Release/AU/macYM.component"
+echo "  Standalone:  build/macym_artefacts/Release/Standalone/macYM.app"
 echo ""
-echo "Run standalone:  open build/ymvst_artefacts/Release/Standalone/ymVST.app"
+echo "Run standalone:  open build/macym_artefacts/Release/Standalone/macYM.app"

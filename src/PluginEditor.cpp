@@ -208,7 +208,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "DEPTH", 680, 304, 1, RetroColours::textWhite);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 356, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "macYM V1.0", 10, 356, 1, RetroColours::textCyan);
 
     // Help overlay (solid background so text is legible)
     if (showingHelp)
@@ -224,7 +224,7 @@ void YmvstEditor::paint(juce::Graphics& g)
             y += dy;
         };
 
-        line("YM-VST HELP", RetroColours::textCyan);
+        line("macYM HELP", RetroColours::textCyan);
         y += 4;
         line("KEYBOARD");
         line("  QWERTY KEYS  Play notes (tracker layout)", RetroColours::textCyan);
