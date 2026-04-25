@@ -4,7 +4,7 @@
 
 If you came here looking for "ymVST for Mac", "ymVST macOS port", "Atari ST YM2149 VST for Mac", or "AY-3-8910 plugin for macOS" — this is a spiritual successor to Gareth Morris's classic Windows-only [ymVST](https://www.preromanbritain.com/ymvst/) (2003), rebuilt from scratch for modern macOS in C++ with JUCE.
 
-![macYM screenshot](ymvst-mac.png)
+![macYM screenshot](macym.png)
 
 ## Features
 
