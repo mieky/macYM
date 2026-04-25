@@ -37,7 +37,8 @@ void SpinnerControl::paint(juce::Graphics& g)
 void SpinnerControl::mouseDown(const juce::MouseEvent& e)
 {
     auto pos = e.getPosition();
-    int step = e.mods.isRightButtonDown() ? 10 : 1;
+    int step = (e.mods.isRightButtonDown() || e.mods.isShiftDown()) ? 10 : 1;
+    if (e.mods.isCommandDown()) step = 100;
     if (leftArrow.contains(pos))
         setValue(value - step);
     else if (rightArrow.contains(pos))
