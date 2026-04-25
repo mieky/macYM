@@ -5,7 +5,7 @@
 YmvstEditor::YmvstEditor(YmvstProcessor& p)
     : AudioProcessorEditor(p), processor(p)
 {
-    setSize(800, 430);
+    setSize(800, 380);
 
     // Add all children
     std::initializer_list<juce::Component*> allChildren = {
@@ -197,15 +197,15 @@ void YmvstEditor::paint(juce::Graphics& g)
                              80, 279, 1, RetroColours::textCyan);
 
     // Controls labels
-    BitmapFont::drawText(g, "SOUND BEND", 420, 270, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 420, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE BEND", 540, 270, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 540, 296, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREMOLO", 680, 270, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 680, 296, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SOUND BEND", 420, 264, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 420, 290, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE BEND", 540, 264, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 540, 290, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREMOLO", 680, 264, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 680, 290, 1, RetroColours::textWhite);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 416, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 366, 1, RetroColours::textCyan);
 
     // Help overlay (solid background so text is legible)
     if (showingHelp)
@@ -259,8 +259,8 @@ void YmvstEditor::resized()
 
     // Row 3: Preset (left) + Portamento (right of preset, left of controls)  y=260..298
     presetLabel.setBounds(8, 260, 240, 38);
-    portaLabel.setBounds(256, 260, 132, 38);
-    controlsLabel.setBounds(396, 264, 396, 76);
+    portaLabel.setBounds(248, 254, 140, 50);
+    controlsLabel.setBounds(396, 258, 396, 76);
 
     // Row 4: Controls  y=304..400
     // (controls section is now right-side only, buttons are left)
@@ -298,21 +298,21 @@ void YmvstEditor::resized()
     // --- Preset ---
     presetSelector.setBounds(18, 276, 55, 16);
 
-    // --- Portamento ---
-    portaRate.setBounds(268, 276, 80, 16);
+    // --- Portamento + SID ---
+    sidOnBtn.setBounds(268, 262, 75, 16);
+    portaRate.setBounds(268, 282, 80, 16);
 
     // --- Controls (right side) ---
-    panicBtn.setBounds(18, 310, 60, 16);
-    polyBtn.setBounds(86, 310, 65, 16);
-    helpBtn.setBounds(160, 310, 50, 16);
-    sidOnBtn.setBounds(18, 334, 75, 16);
+    panicBtn.setBounds(18, 304, 60, 16);
+    polyBtn.setBounds(86, 304, 65, 16);
+    helpBtn.setBounds(160, 304, 50, 16);
 
-    sBendDepth.setBounds(420, 280, 70, 16);
-    sBendSpeed.setBounds(420, 304, 70, 16);
-    nBendDepth.setBounds(540, 280, 70, 16);
-    nBendSpeed.setBounds(540, 304, 70, 16);
-    tremDepth.setBounds(680, 280, 70, 16);
-    tremSpeed.setBounds(680, 304, 70, 16);
+    sBendDepth.setBounds(420, 274, 70, 16);
+    sBendSpeed.setBounds(420, 298, 70, 16);
+    nBendDepth.setBounds(540, 274, 70, 16);
+    nBendSpeed.setBounds(540, 298, 70, 16);
+    tremDepth.setBounds(680, 274, 70, 16);
+    tremSpeed.setBounds(680, 298, 70, 16);
 }
 
 void YmvstEditor::connectCallbacks()
