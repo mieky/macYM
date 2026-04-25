@@ -25,7 +25,7 @@ void WaveformEditor::paint(juce::Graphics& g)
     g.setColour(RetroColours::gridCyan);
     for (int i = 0; i < NUM_CELLS; ++i)
     {
-        int val = data[i];
+        int val = data[static_cast<size_t>(i)];
         for (int v = 0; v < val; ++v)
         {
             int row = MAX_VALUE - v;
@@ -71,9 +71,9 @@ void WaveformEditor::setCellFromMouse(const juce::MouseEvent& e)
     col = juce::jlimit(0, NUM_CELLS - 1, col);
     int val = juce::jlimit(0, MAX_VALUE, MAX_VALUE - row);
 
-    if (data[col] != val)
+    if (data[static_cast<size_t>(col)] != val)
     {
-        data[col] = val;
+        data[static_cast<size_t>(col)] = val;
         repaint();
         if (onValueChanged) onValueChanged(col, val);
     }
@@ -81,7 +81,7 @@ void WaveformEditor::setCellFromMouse(const juce::MouseEvent& e)
 
 int WaveformEditor::getValue(int index) const
 {
-    if (index >= 0 && index < NUM_CELLS) return data[index];
+    if (index >= 0 && index < NUM_CELLS) return data[static_cast<size_t>(index)];
     return 0;
 }
 
@@ -89,7 +89,7 @@ void WaveformEditor::setValue(int index, int value)
 {
     if (index >= 0 && index < NUM_CELLS)
     {
-        data[index] = juce::jlimit(0, MAX_VALUE, value);
+        data[static_cast<size_t>(index)] = juce::jlimit(0, MAX_VALUE, value);
         repaint();
     }
 }

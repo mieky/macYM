@@ -2,8 +2,6 @@
 #include "RetroLookAndFeel.h"
 #include "BitmapFont.h"
 
-constexpr int HardwareWaveformSelector::SHAPE_MAP[8];
-
 HardwareWaveformSelector::HardwareWaveformSelector()
 {
     addAndMakeVisible(chEnv1);

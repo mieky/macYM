@@ -26,7 +26,7 @@ private:
     void connectCallbacks();
     static int keyToMidiNote(int keyCode);
 
-    YmvstProcessor& processor;
+    YmvstProcessor& processorRef;
     std::set<int> keysDown; // Track held keys for noteOff
 
     // Section labels

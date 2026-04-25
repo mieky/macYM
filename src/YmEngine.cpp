@@ -11,7 +11,7 @@ YmEngine::YmEngine()
          0,  0,  0,  0,  0,  0,  0,  0
     };
     for (int i = 0; i < WAVEFORM_SIZE; ++i)
-        waveform[i] = defaultWaveform[i];
+        waveform[static_cast<size_t>(i)] = defaultWaveform[i];
 }
 
 void YmEngine::prepare(double sr)
@@ -247,15 +247,19 @@ void YmEngine::tick()
             }
         }
 
-        if (portamentoEnabled && portamentoRate > 0 && voices[0].period != voices[0].targetPeriod)
+        if (portamentoEnabled && portamentoRate > 0)
         {
-            double step = (voices[0].targetPeriod - voices[0].period) / portamentoRate;
-            if (std::abs(step) < 1.0)
-                voices[0].period = voices[0].targetPeriod;
-            else
-                voices[0].period += step;
-            for (int i = 1; i < NUM_CHANNELS; ++i)
-                voices[i].period = voices[0].period;
+            double diff = voices[0].targetPeriod - voices[0].period;
+            if (std::abs(diff) >= 1.0)
+            {
+                double step = diff / portamentoRate;
+                if (std::abs(step) < 1.0)
+                    voices[0].period = voices[0].targetPeriod;
+                else
+                    voices[0].period += step;
+                for (int i = 1; i < NUM_CHANNELS; ++i)
+                    voices[i].period = voices[0].period;
+            }
         }
     }
     else
@@ -326,7 +330,7 @@ void YmEngine::updateChipRegisters()
             {
                 int vol = (v.velocity * 15) / 127;
                 if (waveformEnabled && waveformLength > 0)
-                    vol = waveform[v.waveformIndex];
+                    vol = waveform[static_cast<size_t>(v.waveformIndex)];
                 if (tremoloDepth > 0)
                 {
                     double tremMod = std::sin(tremoloPhase * 2.0 * 3.14159265358979);
@@ -349,7 +353,7 @@ void YmEngine::updateChipRegisters()
             if (!v.active) continue;
 
             int baseVolume = (v.velocity * 15) / 127;
-            int arpOffset = (arpEnabled && arpLength > 0) ? arpOffsets[arpIndex] : 0;
+            int arpOffset = (arpEnabled && arpLength > 0) ? arpOffsets[static_cast<size_t>(arpIndex)] : 0;
 
             double period;
             if (arpEnabled && arpLength > 0)
@@ -377,7 +381,7 @@ void YmEngine::updateChipRegisters()
             {
                 int vol = baseVolume;
                 if (waveformEnabled && waveformLength > 0)
-                    vol = waveform[waveformIndex];
+                    vol = waveform[static_cast<size_t>(waveformIndex)];
                 if (tremoloDepth > 0)
                 {
                     double tremMod = std::sin(tremoloPhase * 2.0 * 3.14159265358979);
@@ -425,7 +429,7 @@ void YmEngine::setEnvelopeEnabled(int ch, bool enabled) {
     if (ch >= 0 && ch < NUM_CHANNELS) envelopeEnabled[ch] = enabled;
 }
 void YmEngine::setWaveformValue(int index, int value) {
-    if (index >= 0 && index < WAVEFORM_SIZE) waveform[index] = std::clamp(value, 0, 15);
+    if (index >= 0 && index < WAVEFORM_SIZE) waveform[static_cast<size_t>(index)] = std::clamp(value, 0, 15);
 }
 void YmEngine::setWaveformSpeed(int speed) { waveformSpeed = std::max(1, speed); }
 void YmEngine::setWaveformLength(int length) { waveformLength = std::clamp(length, 1, WAVEFORM_SIZE); }
@@ -436,7 +440,7 @@ void YmEngine::setArpSync(bool sync) { arpSync = sync; }
 void YmEngine::setArpSpeed(int speed) { arpSpeed = std::max(1, speed); }
 void YmEngine::setArpLength(int length) { arpLength = std::clamp(length, 1, MAX_ARP_SIZE); }
 void YmEngine::setArpOffset(int index, int semitones) {
-    if (index >= 0 && index < MAX_ARP_SIZE) arpOffsets[index] = semitones;
+    if (index >= 0 && index < MAX_ARP_SIZE) arpOffsets[static_cast<size_t>(index)] = semitones;
 }
 void YmEngine::setPortamentoEnabled(bool enabled) { portamentoEnabled = enabled; }
 void YmEngine::setPortamentoRate(int rate) { portamentoRate = std::max(0, rate); }

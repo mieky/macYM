@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 # Configure if needed
 if [ ! -f build/build.ninja ] && [ ! -f build/Makefile ]; then
     echo "Configuring..."
-    cmake -B build -DCMAKE_BUILD_TYPE=Release
+    cmake -B build -DCMAKE_BUILD_TYPE=Release -Wno-dev
 fi
 
 echo "Building..."

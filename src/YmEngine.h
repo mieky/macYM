@@ -113,8 +113,6 @@ private:
 
     bool portamentoEnabled = false;
     int portamentoRate = 0;
-    double currentPeriod = 0.0;
-    double targetPeriod = 0.0;
 
     int soundBendDepth = 0;
     int soundBendSpeed = 0;

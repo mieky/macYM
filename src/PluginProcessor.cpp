@@ -356,7 +356,7 @@ void YmvstProcessor::loadPreset(int index)
     set("poly_on",     p.polyOn ? 1.f : 0.f);
 
     for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
-        engine.setWaveformValue(i, p.waveform[i]);
+        engine.setWaveformValue(i, p.waveform[static_cast<size_t>(i)]);
 }
 
 juce::AudioProcessorEditor* YmvstProcessor::createEditor()
@@ -375,7 +375,7 @@ void YmvstProcessor::getStateInformation(juce::MemoryBlock& destData)
     juce::ValueTree wfData("WAVEFORM");
     auto& wf = engine.getWaveformData();
     for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
-        wfData.setProperty(juce::Identifier("v" + juce::String(i)), wf[i], nullptr);
+        wfData.setProperty(juce::Identifier("v" + juce::String(i)), wf[static_cast<size_t>(i)], nullptr);
     state.addChild(wfData, -1, nullptr);
 
     std::unique_ptr<juce::XmlElement> xml(state.createXml());

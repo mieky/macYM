@@ -3,7 +3,7 @@
 #include "gui/BitmapFont.h"
 
 YmvstEditor::YmvstEditor(YmvstProcessor& p)
-    : AudioProcessorEditor(p), processor(p)
+    : AudioProcessorEditor(p), processorRef(p)
 {
     setSize(800, 380);
 
@@ -108,8 +108,8 @@ bool YmvstEditor::keyPressed(const juce::KeyPress& key)
 
     if (key == juce::KeyPress::escapeKey)
     {
-        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
-        processor.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
+        const juce::SpinLock::ScopedLockType lock(processorRef.editorMidiLock);
+        processorRef.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
         keysDown.clear();
         return true;
     }
@@ -124,8 +124,8 @@ bool YmvstEditor::keyPressed(const juce::KeyPress& key)
         if (keysDown.find(keyCode) == keysDown.end())
         {
             keysDown.insert(keyCode);
-            const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
-            processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)100), 0);
+            const juce::SpinLock::ScopedLockType lock(processorRef.editorMidiLock);
+            processorRef.editorMidiBuffer.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)100), 0);
         }
         return true; // Always consume music keys (suppresses macOS alert sound on repeat)
     }
@@ -149,8 +149,8 @@ bool YmvstEditor::keyStateChanged(bool /*isKeyDown*/)
         int note = keyToMidiNote(keyCode);
         if (note >= 0)
         {
-            const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
-            processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOff(1, note), 0);
+            const juce::SpinLock::ScopedLockType lock(processorRef.editorMidiLock);
+            processorRef.editorMidiBuffer.addEvent(juce::MidiMessage::noteOff(1, note), 0);
         }
     }
     return !released.empty();
@@ -159,7 +159,7 @@ bool YmvstEditor::keyStateChanged(bool /*isKeyDown*/)
 void YmvstEditor::timerCallback()
 {
     // Read scope samples from engine's lock-free buffer (written on audio thread)
-    auto& engine = processor.getEngine();
+    auto& engine = processorRef.getEngine();
     int wp = engine.scopeWritePos.load(std::memory_order_acquire);
     for (int i = 0; i < ScopeDisplay::BUFFER_SIZE; ++i)
     {
@@ -195,8 +195,8 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "ARP LEN", 700, 214, 1, RetroColours::textWhite);
 
     // Preset name
-    if (processor.getCurrentProgram() >= 0 && processor.getCurrentProgram() < NUM_FACTORY_PRESETS)
-        BitmapFont::drawText(g, FACTORY_PRESETS[processor.getCurrentProgram()].name,
+    if (processorRef.getCurrentProgram() >= 0 && processorRef.getCurrentProgram() < NUM_FACTORY_PRESETS)
+        BitmapFont::drawText(g, FACTORY_PRESETS[processorRef.getCurrentProgram()].name,
                              80, 279, 1, RetroColours::textCyan);
 
     // Controls labels
@@ -328,7 +328,7 @@ void YmvstEditor::resized()
 
 void YmvstEditor::connectCallbacks()
 {
-    auto& params = processor.getParams();
+    auto& params = processorRef.getParams();
     auto setParam = [&](const juce::String& id, float val) {
         if (auto* p = params.getParameter(id))
             p->setValueNotifyingHost(p->convertTo0to1(val));
@@ -365,16 +365,16 @@ void YmvstEditor::connectCallbacks()
 
     waveformEditor.onValueChanged = [this](int idx, int val) {
         // Single int write is naturally atomic on modern architectures
-        processor.getEngine().setWaveformValue(idx, val);
+        processorRef.getEngine().setWaveformValue(idx, val);
     };
 
     presetSelector.onValueChanged = [this](int v) {
-        processor.loadPreset(v);
+        processorRef.loadPreset(v);
         syncWidgetsToParams();
         // Update waveform editor display
-        auto& wf = processor.getEngine().getWaveformData();
+        auto& wf = processorRef.getEngine().getWaveformData();
         for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
-            waveformEditor.setValue(i, wf[i]);
+            waveformEditor.setValue(i, wf[static_cast<size_t>(i)]);
         repaint();
     };
     helpBtn.onStateChanged = [this](bool) {
@@ -390,8 +390,8 @@ void YmvstEditor::connectCallbacks()
     };
     panicBtn.onStateChanged = [this](bool) {
         // Send all-notes-off via MIDI buffer (processed on audio thread)
-        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
-        processor.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
+        const juce::SpinLock::ScopedLockType lock(processorRef.editorMidiLock);
+        processorRef.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
         panicBtn.setState(false); // Reset to unpressed
     };
     polyBtn.onStateChanged = [&, setParam](bool on) { setParam("poly_on", on ? 1.f : 0.f); };
@@ -408,7 +408,7 @@ void YmvstEditor::connectCallbacks()
 void YmvstEditor::syncWidgetsToParams()
 {
     // Called to sync widget states from parameter values (e.g., after state restore)
-    auto& params = processor.getParams();
+    auto& params = processorRef.getParams();
     auto getVal = [&](const juce::String& id) -> float {
         if (auto* p = params.getRawParameterValue(id)) return *p;
         return 0.f;
@@ -460,5 +460,5 @@ void YmvstEditor::syncWidgetsToParams()
     tremDepth.setValue(static_cast<int>(getVal("trem_depth")));
     tremSpeed.setValue(static_cast<int>(getVal("trem_speed")));
 
-    presetSelector.setValue(processor.getCurrentProgram());
+    presetSelector.setValue(processorRef.getCurrentProgram());
 }

@@ -76,7 +76,7 @@ fi
 
 echo "==> Building universal binary (arm64 + x86_64)..."
 rm -rf build
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" >/dev/null
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -Wno-dev >/dev/null
 cmake --build build \
     --target macym_VST3 --target macym_AU --target macym_Standalone \
     --config Release \

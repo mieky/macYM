@@ -14,7 +14,7 @@ ScopeDisplay::~ScopeDisplay()
 
 void ScopeDisplay::pushSample(float sample)
 {
-    buffer[writeIndex] = sample;
+    buffer[static_cast<size_t>(writeIndex)] = sample;
     writeIndex = (writeIndex + 1) % BUFFER_SIZE;
 }
 
@@ -50,13 +50,13 @@ void ScopeDisplay::paint(juce::Graphics& g)
 
     int readIndex = (writeIndex + 1) % BUFFER_SIZE;
     float prevX = static_cast<float>(b.getX());
-    float prevY = yCenter - buffer[readIndex] * yRange;
+    float prevY = yCenter - buffer[static_cast<size_t>(readIndex)] * yRange;
 
     for (int i = 1; i < BUFFER_SIZE; ++i)
     {
         int idx = (readIndex + i) % BUFFER_SIZE;
         float x = b.getX() + i * xScale;
-        float y = yCenter - buffer[idx] * yRange;
+        float y = yCenter - buffer[static_cast<size_t>(idx)] * yRange;
         g.drawLine(prevX, prevY, x, y, 1.0f);
         prevX = x;
         prevY = y;

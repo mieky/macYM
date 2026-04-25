@@ -41,6 +41,10 @@ target_sources(macym
         libs/ayumi/ayumi.c
 )
 
+# Vendored ayumi is a C library we don't modify; relax its per-file warnings.
+set_source_files_properties(libs/ayumi/ayumi.c
+    PROPERTIES COMPILE_OPTIONS "-Wno-missing-prototypes")
+
 target_include_directories(macym
     PRIVATE
         libs/ayumi
