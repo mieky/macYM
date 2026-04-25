@@ -107,14 +107,6 @@ static const Preset FACTORY_PRESETS[] = {
         false, 4, 0, 15, 0, 5, 0, 4, false, false
     },
     {
-        "Buzzer",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {true,false,false},
-        0, false, 15, 8, 800,
-        false, true, 1, 1, 0,
-        false, false, 1, 32, WF_FLAT,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
-    {
         "Noise Hit",
         {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
         0, true, 8, 0, 1000,
