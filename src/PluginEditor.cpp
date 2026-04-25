@@ -52,6 +52,7 @@ void YmvstEditor::mouseDown(const juce::MouseEvent&)
             getChildComponent(i)->setVisible(true);
         repaint();
     }
+    grabKeyboardFocus();
 }
 
 int YmvstEditor::keyToMidiNote(int keyCode)
