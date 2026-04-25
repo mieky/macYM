@@ -1,0 +1,14 @@
+# Build
+build/
+cmake-build-*/
+
+# IDE
+.idea/
+.vscode/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+.DS_Store
+
+# JUCE
+JuceLibraryCode/
