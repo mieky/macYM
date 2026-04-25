@@ -174,7 +174,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "LENGTH", 315, 155, 1, RetroColours::textWhite);
 
     // Noise labels
-    BitmapFont::drawText(g, "FREQ", 100, 224, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "FREQ", 88, 224, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
     BitmapFont::drawText(g, "SPEED", 680, 44, 1, RetroColours::textWhite);
@@ -253,14 +253,14 @@ void YmvstEditor::resized()
     ampWfLabel.setBounds(8, 8, 380, 190);
     hwWfLabel.setBounds(396, 8, 396, 148);
 
-    // Row 2: Noise (left) + Arpeggiator (right)
-    noiseLabel.setBounds(8, 204, 220, 50);
+    // Row 2: Noise | Porta (left) + Arpeggiator (right)
+    noiseLabel.setBounds(8, 204, 260, 50);
+    portaLabel.setBounds(276, 204, 112, 50);
     arpLabel.setBounds(396, 162, 396, 95);
 
-    // Row 3: Preset | SID | Portamento | Controls
-    presetLabel.setBounds(8, 260, 200, 38);
-    sidLabel.setBounds(216, 260, 100, 38);
-    portaLabel.setBounds(324, 260, 64, 38);
+    // Row 3: Preset | SID | Controls
+    presetLabel.setBounds(8, 260, 250, 38);
+    sidLabel.setBounds(266, 260, 122, 38);
     controlsLabel.setBounds(396, 262, 396, 82);
 
     // Row 4: Controls  y=304..400
@@ -287,7 +287,7 @@ void YmvstEditor::resized()
 
     // --- Noise ---
     noiseOnBtn.setBounds(18, 222, 55, 16);
-    noiseFreq.setBounds(160, 222, 80, 16);
+    noiseFreq.setBounds(140, 222, 80, 16);
 
     // --- Arpeggiator ---
     arpOnBtn.setBounds(406, 180, 55, 16);
@@ -300,15 +300,16 @@ void YmvstEditor::resized()
     presetSelector.setBounds(18, 276, 55, 16);
 
     // --- SID ---
-    sidOnBtn.setBounds(224, 276, 84, 16);
+    // --- SID ---
+    sidOnBtn.setBounds(278, 276, 96, 16);
 
-    // --- Portamento ---
-    portaRate.setBounds(330, 276, 52, 16);
+    // --- Portamento (next to noise) ---
+    portaRate.setBounds(290, 222, 80, 16);
 
     // --- Controls (right side) ---
-    panicBtn.setBounds(18, 328, 60, 16);
-    polyBtn.setBounds(86, 328, 65, 16);
-    helpBtn.setBounds(160, 328, 50, 16);
+    panicBtn.setBounds(10, 328, 60, 16);
+    polyBtn.setBounds(76, 328, 65, 16);
+    helpBtn.setBounds(148, 328, 50, 16);
 
     sBendDepth.setBounds(420, 286, 70, 16);
     sBendSpeed.setBounds(420, 312, 70, 16);
