@@ -90,45 +90,54 @@ static constexpr std::array<int, 32> WF_STAB = {
 };
 
 static const Preset FACTORY_PRESETS[] = {
-    {
-        "Chip Pluck",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
+    // --- Leads ---
     {
         "Square Lead",
         {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
         0, false, 15, 0, 1000,
         false, true, 1, 1, 0,
         false, false, 1, 32, WF_FLAT,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
+        false, 4, 0, 15, 0, 5, 0, 4, false, true
     },
     {
-        "Noise Hit",
-        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
-        0, true, 8, 0, 1000,
+        "Saw Lead",
+        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {true,false,false},
+        0, false, 15, 12, 400,
         false, true, 1, 1, 0,
-        true, true, 1, 10, WF_PLUCK,
+        false, false, 1, 32, WF_FLAT,
+        false, 4, 0, 15, 0, 5, 0, 4, false, true
+    },
+    {
+        "Chip Pluck",
+        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 32, WF_DECAY,
+        false, 4, 0, 15, 0, 5, 0, 4, false, true
+    },
+    {
+        "Vibrato Lead",
+        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        false, true, 1, 1, 0,
+        false, false, 1, 32, WF_FLAT,
+        false, 4, 0, 15, 0, 5, 3, 8, false, true
+    },
+    {
+        "Detuned Lead",
+        {true,true,true}, {0,3,-3}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 32, WF_DECAY,
         false, 4, 0, 15, 0, 5, 0, 4, false, false
     },
     {
-        "Arp Major",
-        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        "Portamento Lead",
+        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
         0, false, 15, 0, 1000,
-        true, true, 2, 4, 4,
-        true, false, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
-    {
-        "Arp Minor",
-        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        true, true, 2, 4, 3,
-        true, false, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
+        false, true, 1, 1, 0,
+        false, false, 1, 32, WF_FLAT,
+        true, 8, 0, 15, 0, 5, 0, 4, false, false
     },
     {
         "SID Sync",
@@ -138,22 +147,7 @@ static const Preset FACTORY_PRESETS[] = {
         true, true, 1, 32, WF_DECAY,
         false, 4, 0, 15, 0, 5, 0, 4, true, false
     },
-    {
-        "Poly Pad",
-        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        false, true, 1, 1, 0,
-        true, false, 2, 32, WF_SWELL,
-        false, 4, 0, 15, 0, 5, 0, 4, false, true
-    },
-    {
-        "Laser",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 16, WF_PLUCK,
-        false, 4, 30, 8, 0, 5, 0, 4, false, false
-    },
+    // --- Bass ---
     {
         "Thick Bass",
         {true,true,false}, {0,-7,0}, {true,true,true}, {false,false,false}, {false,false,false},
@@ -162,58 +156,6 @@ static const Preset FACTORY_PRESETS[] = {
         true, true, 1, 32, WF_DECAY,
         false, 4, 0, 15, 0, 5, 0, 4, false, false
     },
-    // --- Kicks ---
-    {
-        "Kick Punch",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        -24, false, 15, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 10, WF_KICK,
-        false, 4, 40, 4, 0, 5, 0, 4, false, false
-    },
-    {
-        "Kick Deep",
-        {true,true,false}, {0,0,0}, {true,true,true}, {true,false,false}, {false,false,false},
-        -24, true, 2, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 12, WF_KICK,
-        false, 4, 50, 3, 0, 5, 0, 4, false, false
-    },
-    // --- Snares ---
-    {
-        "Snare Tight",
-        {true,false,false}, {0,0,0}, {true,true,true}, {true,false,false}, {false,false,false},
-        0, true, 12, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 16, WF_SNARE,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
-    {
-        "Snare Noise",
-        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
-        0, true, 6, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 20, WF_SNARE,
-        false, 4, 0, 15, 5, 8, 0, 4, false, false
-    },
-    // --- Hihats ---
-    {
-        "Hihat Closed",
-        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
-        0, true, 20, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 6, WF_HIHAT,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
-    {
-        "Hihat Open",
-        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
-        0, true, 22, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 18, WF_DECAY,
-        false, 4, 0, 15, 3, 10, 0, 4, false, false
-    },
-    // --- Basses ---
     {
         "Sub Bass",
         {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
@@ -238,40 +180,113 @@ static const Preset FACTORY_PRESETS[] = {
         true, false, 1, 32, WF_WOBBLE,
         false, 4, 0, 15, 0, 5, 0, 4, false, false
     },
-    // --- Leads ---
+    // --- Percussion ---
     {
-        "Saw Lead",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {true,false,false},
-        0, false, 15, 12, 400,
+        "Kick Punch",
+        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        -24, false, 15, 0, 1000,
         false, true, 1, 1, 0,
-        false, false, 1, 32, WF_FLAT,
+        true, true, 1, 10, WF_KICK,
+        false, 4, 40, 4, 0, 5, 0, 4, false, false
+    },
+    {
+        "Kick Deep",
+        {true,true,false}, {0,0,0}, {true,true,true}, {true,false,false}, {false,false,false},
+        -24, true, 2, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 12, WF_KICK,
+        false, 4, 50, 3, 0, 5, 0, 4, false, false
+    },
+    {
+        "Snare Tight",
+        {true,false,false}, {0,0,0}, {true,true,true}, {true,false,false}, {false,false,false},
+        0, true, 12, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 16, WF_SNARE,
         false, 4, 0, 15, 0, 5, 0, 4, false, false
     },
     {
-        "Vibrato Lead",
-        {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
+        "Snare Noise",
+        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
+        0, true, 6, 0, 1000,
         false, true, 1, 1, 0,
-        false, false, 1, 32, WF_FLAT,
-        false, 4, 0, 15, 0, 5, 3, 8, false, false
+        true, true, 1, 20, WF_SNARE,
+        false, 4, 0, 15, 5, 8, 0, 4, false, false
     },
     {
-        "Detuned Lead",
-        {true,true,true}, {0,3,-3}, {true,true,true}, {false,false,false}, {false,false,false},
+        "Hihat Closed",
+        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
+        0, true, 20, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 6, WF_HIHAT,
+        false, 4, 0, 15, 0, 5, 0, 4, false, false
+    },
+    {
+        "Hihat Open",
+        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
+        0, true, 22, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 18, WF_DECAY,
+        false, 4, 0, 15, 3, 10, 0, 4, false, false
+    },
+    {
+        "Noise Hit",
+        {true,false,false}, {0,0,0}, {false,false,false}, {true,false,false}, {false,false,false},
+        0, true, 8, 0, 1000,
+        false, true, 1, 1, 0,
+        true, true, 1, 10, WF_PLUCK,
+        false, 4, 0, 15, 0, 5, 0, 4, false, false
+    },
+    // --- Chords & Pads ---
+    {
+        "Arp Major",
+        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        true, true, 2, 4, 4,
+        true, false, 1, 32, WF_DECAY,
+        false, 4, 0, 15, 0, 5, 0, 4, false, false
+    },
+    {
+        "Arp Minor",
+        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        true, true, 2, 4, 3,
+        true, false, 1, 32, WF_DECAY,
+        false, 4, 0, 15, 0, 5, 0, 4, false, false
+    },
+    {
+        "Arp Dim",
+        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        true, true, 2, 4, 3,
+        true, false, 1, 32, WF_DECAY,
+        false, 4, 0, 15, 0, 5, 0, 4, false, false
+    },
+    {
+        "Poly Pad",
+        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
+        0, false, 15, 0, 1000,
+        false, true, 1, 1, 0,
+        true, false, 2, 32, WF_SWELL,
+        false, 4, 0, 15, 0, 5, 0, 4, false, true
+    },
+    {
+        "Poly Pluck",
+        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
         0, false, 15, 0, 1000,
         false, true, 1, 1, 0,
         true, true, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
+        false, 4, 0, 15, 0, 5, 0, 4, false, true
     },
+    // --- FX ---
     {
-        "Portamento Lead",
+        "Laser",
         {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
         0, false, 15, 0, 1000,
         false, true, 1, 1, 0,
-        false, false, 1, 32, WF_FLAT,
-        true, 8, 0, 15, 0, 5, 0, 4, false, false
+        true, true, 1, 16, WF_PLUCK,
+        false, 4, 30, 8, 0, 5, 0, 4, false, false
     },
-    // --- FX ---
     {
         "Zap",
         {true,false,false}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
@@ -295,23 +310,6 @@ static const Preset FACTORY_PRESETS[] = {
         false, true, 1, 1, 0,
         true, true, 2, 32, WF_DECAY,
         false, 4, -30, 12, 0, 5, 0, 4, false, false
-    },
-    // --- Chords ---
-    {
-        "Arp Dim",
-        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        true, true, 2, 4, 3,
-        true, false, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, false
-    },
-    {
-        "Poly Pluck",
-        {true,true,true}, {0,0,0}, {true,true,true}, {false,false,false}, {false,false,false},
-        0, false, 15, 0, 1000,
-        false, true, 1, 1, 0,
-        true, true, 1, 32, WF_DECAY,
-        false, 4, 0, 15, 0, 5, 0, 4, false, true
     },
 };
 

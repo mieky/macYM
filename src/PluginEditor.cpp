@@ -262,6 +262,9 @@ void YmvstEditor::connectCallbacks()
     mainTune.onValueChanged = [&, setParam](int v) { setParam("main_tune", (float)v); };
 
     hwSelector.onShapeChanged = [&, setParam](int s) { setParam("env_shape", (float)s); };
+    hwSelector.chEnv1.onStateChanged = [&, setParam](bool on) { setParam("ch1_env", on ? 1.f : 0.f); };
+    hwSelector.chEnv2.onStateChanged = [&, setParam](bool on) { setParam("ch2_env", on ? 1.f : 0.f); };
+    hwSelector.chEnv3.onStateChanged = [&, setParam](bool on) { setParam("ch3_env", on ? 1.f : 0.f); };
     envSpeed.onValueChanged = [&, setParam](int v) { setParam("env_period", (float)v); };
 
     arpOnBtn.onStateChanged = [&, setParam](bool on) { setParam("arp_on", on ? 1.f : 0.f); };
@@ -308,20 +311,51 @@ void YmvstEditor::syncWidgetsToParams()
         return 0.f;
     };
 
+    // Channels
     ch1Btn.setState(getVal("ch1_on") > 0.5f);
     ch2Btn.setState(getVal("ch2_on") > 0.5f);
     ch3Btn.setState(getVal("ch3_on") > 0.5f);
+    fineTune1.setValue(static_cast<int>(getVal("ch1_fine")));
+    fineTune2.setValue(static_cast<int>(getVal("ch2_fine")));
+    fineTune3.setValue(static_cast<int>(getVal("ch3_fine")));
+
+    // Hardware envelope
+    hwSelector.setSelectedShape(static_cast<int>(getVal("env_shape")));
+    hwSelector.chEnv1.setState(getVal("ch1_env") > 0.5f);
+    hwSelector.chEnv2.setState(getVal("ch2_env") > 0.5f);
+    hwSelector.chEnv3.setState(getVal("ch3_env") > 0.5f);
+    envSpeed.setValue(static_cast<int>(getVal("env_period")));
+
+    // Tuning
+    mainTune.setValue(static_cast<int>(getVal("main_tune")));
+
+    // Noise
     noiseOnBtn.setState(getVal("noise_on") > 0.5f);
     noiseFreq.setValue(static_cast<int>(getVal("noise_freq")));
-    mainTune.setValue(static_cast<int>(getVal("main_tune")));
+
+    // Arpeggiator
     arpOnBtn.setState(getVal("arp_on") > 0.5f);
     arpSyncBtn.setState(getVal("arp_sync") > 0.5f);
     arpT1.setValue(static_cast<int>(getVal("arp_t1")));
     arpSpeed.setValue(static_cast<int>(getVal("arp_speed")));
     arpLength.setValue(static_cast<int>(getVal("arp_length")));
+
+    // Waveform
     wfOnBtn.setState(getVal("wf_on") > 0.5f);
     wfOneShotBtn.setState(getVal("wf_oneshot") > 0.5f);
+    wfSpeed.setValue(static_cast<int>(getVal("wf_speed")));
+    wfLength.setValue(static_cast<int>(getVal("wf_length")));
+
+    // Bottom row
     sidOnBtn.setState(getVal("sid_on") > 0.5f);
     polyBtn.setState(getVal("poly_on") > 0.5f);
+    portaRate.setValue(static_cast<int>(getVal("porta_rate")));
+    sBendDepth.setValue(static_cast<int>(getVal("sbend_depth")));
+    sBendSpeed.setValue(static_cast<int>(getVal("sbend_speed")));
+    nBendDepth.setValue(static_cast<int>(getVal("nbend_depth")));
+    nBendSpeed.setValue(static_cast<int>(getVal("nbend_speed")));
+    tremDepth.setValue(static_cast<int>(getVal("trem_depth")));
+    tremSpeed.setValue(static_cast<int>(getVal("trem_speed")));
+
     presetSelector.setValue(processor.getCurrentProgram());
 }
