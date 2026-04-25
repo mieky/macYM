@@ -9,7 +9,7 @@ YmvstEditor::YmvstEditor(YmvstProcessor& p)
 
     // Add all children
     std::initializer_list<juce::Component*> allChildren = {
-        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel,
+        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel, &presetLabel, &controlsLabel,
         &waveformEditor, &scopeDisplay, &wfOnBtn, &wfOneShotBtn, &wfSpeed, &wfLength,
         &hwSelector, &envSpeed, &mainTune, &fineTune1, &fineTune2, &fineTune3,
         &noiseOnBtn, &noiseFreq,
@@ -149,15 +149,12 @@ void YmvstEditor::paint(juce::Graphics& g)
 {
     g.fillAll(RetroColours::background);
 
-    // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 388, 1, RetroColours::textCyan);
-
     // Waveform control labels
     BitmapFont::drawText(g, "SPEED", 178, 140, 1, RetroColours::textWhite);
     BitmapFont::drawText(g, "LENGTH", 245, 140, 1, RetroColours::textWhite);
 
     // Noise labels
-    BitmapFont::drawText(g, "NOISE FRE.", 120, 198, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE FRE.", 80, 200, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
     BitmapFont::drawText(g, "SPEED", 540, 38, 1, RetroColours::textWhite);
@@ -169,36 +166,40 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "FINE TUNE", 455, 96, 1, RetroColours::textWhite);
     BitmapFont::drawText(g, "MAIN", 580, 96, 1, RetroColours::textWhite);
 
+    // Arpeggiator labels
     BitmapFont::drawText(g, "T1", 505, 200, 1, RetroColours::textWhite);
     BitmapFont::drawText(g, "SPEED", 505, 250, 1, RetroColours::textWhite);
     BitmapFont::drawText(g, "ARP", 570, 250, 1, RetroColours::textWhite);
     BitmapFont::drawText(g, "LEN", 570, 260, 1, RetroColours::textWhite);
 
-    // Preset name
-    BitmapFont::drawText(g, "PRESET:", 15, 275, 1, RetroColours::textWhite);
+    // Preset name (inside preset section)
     if (processor.getCurrentProgram() >= 0 && processor.getCurrentProgram() < NUM_FACTORY_PRESETS)
         BitmapFont::drawText(g, FACTORY_PRESETS[processor.getCurrentProgram()].name,
-                             70, 288, 1, RetroColours::textCyan);
+                             70, 255, 1, RetroColours::textCyan);
 
-    // Bottom labels
-    BitmapFont::drawText(g, "PORTAMENTO", 190, 330, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "SOUND", 305, 330, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND DEPTH", 295, 340, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND SPEED", 295, 370, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE+OO", 420, 330, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "BEND DEPTH", 410, 340, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREM.DEPTH", 530, 330, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREM.SPEED", 530, 370, 1, RetroColours::textWhite);
+    // Controls section labels
+    BitmapFont::drawText(g, "PORTAMENTO", 195, 310, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SOUND", 310, 310, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND DEPTH", 300, 320, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND SPEED", 300, 348, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE+OO", 420, 310, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "BEND DEPTH", 415, 320, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREM.DEPTH", 535, 310, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREM.SPEED", 535, 348, 1, RetroColours::textWhite);
 
+    // Version label
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 388, 1, RetroColours::textCyan);
 }
 
 void YmvstEditor::resized()
 {
-    // Section labels
+    // Section borders
     ampWfLabel.setBounds(5, 5, 300, 170);
     hwWfLabel.setBounds(310, 5, 325, 130);
-    noiseLabel.setBounds(5, 185, 345, 45);
+    noiseLabel.setBounds(5, 185, 340, 40);
     arpLabel.setBounds(355, 185, 280, 100);
+    presetLabel.setBounds(5, 235, 345, 42);
+    controlsLabel.setBounds(5, 290, 630, 105);
 
     // Amplitude waveform editor + scope
     waveformEditor.setBounds(15, 20, 150, 120);
@@ -214,22 +215,18 @@ void YmvstEditor::resized()
     hwSelector.setBounds(320, 18, 200, 68);
     envSpeed.setBounds(540, 50, 80, 14);
 
-    // Channel on/off buttons (row below envelope shapes)
+    // Channel on/off + tuning row
     ch1Btn.setBounds(320, 106, 35, 14);
     ch2Btn.setBounds(360, 106, 35, 14);
     ch3Btn.setBounds(400, 106, 35, 14);
-
-    // Fine tune spinners (next to channel buttons)
     fineTune1.setBounds(445, 106, 40, 14);
     fineTune2.setBounds(487, 106, 40, 14);
     fineTune3.setBounds(529, 106, 40, 14);
-
-    // Main tuning
     mainTune.setBounds(575, 106, 50, 14);
 
     // Noise
     noiseOnBtn.setBounds(15, 200, 50, 14);
-    noiseFreq.setBounds(120, 212, 80, 14);
+    noiseFreq.setBounds(80, 210, 80, 14);
 
     // Arpeggiator
     arpOnBtn.setBounds(365, 200, 50, 14);
@@ -238,20 +235,20 @@ void YmvstEditor::resized()
     arpSpeed.setBounds(505, 260, 55, 14);
     arpLength.setBounds(570, 260, 55, 14);
 
-    // Preset selector
-    presetSelector.setBounds(15, 285, 50, 14);
+    // Preset
+    presetSelector.setBounds(15, 252, 50, 14);
 
-    // Bottom row
-    panicBtn.setBounds(15, 320, 55, 14);
-    polyBtn.setBounds(15, 338, 60, 14);
-    sidOnBtn.setBounds(15, 356, 70, 14);
-    portaRate.setBounds(200, 355, 70, 14);
-    sBendDepth.setBounds(310, 355, 60, 14);
-    sBendSpeed.setBounds(310, 380, 60, 14);
-    nBendDepth.setBounds(430, 355, 60, 14);
-    nBendSpeed.setBounds(430, 380, 60, 14);
-    tremDepth.setBounds(550, 345, 60, 14);
-    tremSpeed.setBounds(550, 380, 60, 14);
+    // Controls section
+    panicBtn.setBounds(15, 305, 55, 14);
+    polyBtn.setBounds(75, 305, 60, 14);
+    sidOnBtn.setBounds(15, 325, 70, 14);
+    portaRate.setBounds(200, 335, 70, 14);
+    sBendDepth.setBounds(310, 335, 60, 14);
+    sBendSpeed.setBounds(310, 360, 60, 14);
+    nBendDepth.setBounds(430, 335, 60, 14);
+    nBendSpeed.setBounds(430, 360, 60, 14);
+    tremDepth.setBounds(550, 325, 60, 14);
+    tremSpeed.setBounds(550, 360, 60, 14);
 }
 
 void YmvstEditor::connectCallbacks()

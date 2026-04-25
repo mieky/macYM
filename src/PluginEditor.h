@@ -33,6 +33,8 @@ private:
     SectionLabel hwWfLabel     { "HARDWARE ENVELOPE" };
     SectionLabel noiseLabel    { "NOISE" };
     SectionLabel arpLabel      { "ARPEGGIATOR" };
+    SectionLabel presetLabel   { "PRESET" };
+    SectionLabel controlsLabel { "CONTROLS" };
 
     // Amplitude waveform section
     WaveformEditor waveformEditor;
