@@ -53,6 +53,7 @@ public:
     void setTremoloDepth(int depth);
     void setTremoloSpeed(int speed);
     void setSidMode(bool enabled);
+    void setMasterVolume(float vol);
     float getLastOutputSample() const { return lastOutputSample; }
     const std::array<int, WAVEFORM_SIZE>& getWaveformData() const { return waveform; }
 
@@ -127,6 +128,7 @@ private:
     double tremoloPhase = 0.0;
 
     bool sidMode = false;
+    float masterVolume = 1.0f;
 
     float lastOutputSample = 0.0f;
     int tickCounter = 0;

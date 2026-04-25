@@ -70,6 +70,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout YmvstProcessor::createParame
         juce::ParameterID("sid_on", 1), "SID Mode", false));
     params.push_back(std::make_unique<juce::AudioParameterBool>(
         juce::ParameterID("poly_on", 1), "Poly Mode", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID("master_vol", 1), "Master Volume", 0.0f, 1.0f, 1.0f));
 
     return { params.begin(), params.end() };
 }
@@ -158,6 +160,7 @@ void YmvstProcessor::applyParametersToEngine()
     engine.setTremoloSpeed(static_cast<int>(*parameters.getRawParameterValue("trem_speed")));
     engine.setSidMode(*parameters.getRawParameterValue("sid_on") > 0.5f);
     engine.setPolyMode(*parameters.getRawParameterValue("poly_on") > 0.5f);
+    engine.setMasterVolume(*parameters.getRawParameterValue("master_vol"));
 }
 
 // MIDI CC mapping matching the original ymVST controller assignments.
@@ -180,8 +183,10 @@ void YmvstProcessor::handleMidiCC(int cc, int val)
         case 1:   setScaled("trem_depth", val); break;      // Mod Wheel → Tremolo Depth
         case 3:   setScaled("main_tune", val); break;        // Hardwave Main Tune
         case 5:   setScaled("porta_rate", val); break;       // Portamento Time
+        case 7:   setScaled("master_vol", val); break;       // Master Volume
         case 9:   setScaled("noise_freq", val); break;       // Noise Freq
 
+        case 16:  setScaled("noise_freq", val); break;       // Noise Length (mapped to freq)
         case 17:  setScaled("wf_length", val); break;        // Square (waveform) Length
         case 19:  setScaled("arp_length", val); break;       // Arp Length
 
@@ -205,6 +210,8 @@ void YmvstProcessor::handleMidiCC(int cc, int val)
         case 71:  setScaled("sbend_speed", val); break;     // Pitch Bend Rate
         case 72:  setScaled("sbend_depth", val); break;     // Pitch Bend Depth
 
+        case 75:  setBool("wf_oneshot", val); break;          // Square Sync (one-shot toggle)
+        case 76:  setBool("ch1_env", val); break;            // Hardwave Sync (envelope toggle)
         case 77:  setBool("arp_sync", val); break;           // Arp Sync
         case 78:  setBool("sid_on", val); break;             // SID FX On/Off
 

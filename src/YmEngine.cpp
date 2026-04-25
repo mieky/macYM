@@ -143,8 +143,8 @@ void YmEngine::processBlock(float* leftOut, float* rightOut, int numSamples)
         ayumi_process(&ay);
         ayumi_remove_dc(&ay);
 
-        leftOut[s] = static_cast<float>(ay.left);
-        rightOut[s] = static_cast<float>(ay.right);
+        leftOut[s] = static_cast<float>(ay.left) * masterVolume;
+        rightOut[s] = static_cast<float>(ay.right) * masterVolume;
     }
 
     if (numSamples > 0)
@@ -383,3 +383,4 @@ void YmEngine::setNoiseBendSpeed(int speed) { noiseBendSpeed = std::max(0, speed
 void YmEngine::setTremoloDepth(int depth) { tremoloDepth = std::clamp(depth, 0, 15); }
 void YmEngine::setTremoloSpeed(int speed) { tremoloSpeed = std::max(0, speed); }
 void YmEngine::setSidMode(bool enabled) { sidMode = enabled; }
+void YmEngine::setMasterVolume(float vol) { masterVolume = std::clamp(vol, 0.0f, 1.0f); }
