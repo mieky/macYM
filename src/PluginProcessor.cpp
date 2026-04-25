@@ -171,7 +171,9 @@ void YmvstProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     for (const auto metadata : midi)
     {
         auto msg = metadata.getMessage();
-        if (msg.isNoteOn())
+        if (msg.isAllNotesOff() || msg.isAllSoundOff())
+            engine.noteOff();
+        else if (msg.isNoteOn())
             engine.noteOn(msg.getNoteNumber(), msg.getVelocity());
         else if (msg.isNoteOff())
             engine.noteOff(msg.getNoteNumber());

@@ -16,7 +16,7 @@ YmvstEditor::YmvstEditor(YmvstProcessor& p)
         &ch1Btn, &ch2Btn, &ch3Btn,
         &arpOnBtn, &arpSyncBtn, &arpT1, &arpSpeed, &arpLength,
         &presetSelector,
-        &polyBtn, &sidOnBtn, &portaRate, &sBendDepth, &sBendSpeed, &nBendDepth, &nBendSpeed,
+        &panicBtn, &polyBtn, &sidOnBtn, &portaRate, &sBendDepth, &sBendSpeed, &nBendDepth, &nBendSpeed,
         &tremDepth, &tremSpeed
     };
     for (auto* c : allChildren)
@@ -234,8 +234,9 @@ void YmvstEditor::resized()
     presetSelector.setBounds(15, 285, 50, 14);
 
     // Bottom row
-    polyBtn.setBounds(15, 335, 60, 14);
-    sidOnBtn.setBounds(15, 355, 70, 14);
+    panicBtn.setBounds(15, 320, 55, 14);
+    polyBtn.setBounds(15, 338, 60, 14);
+    sidOnBtn.setBounds(15, 356, 70, 14);
     portaRate.setBounds(200, 355, 70, 14);
     sBendDepth.setBounds(310, 355, 60, 14);
     sBendSpeed.setBounds(310, 380, 60, 14);
@@ -295,6 +296,12 @@ void YmvstEditor::connectCallbacks()
         for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
             waveformEditor.setValue(i, wf[i]);
         repaint();
+    };
+    panicBtn.onStateChanged = [this](bool) {
+        // Send all-notes-off via MIDI buffer (processed on audio thread)
+        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
+        processor.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
+        panicBtn.setState(false); // Reset to unpressed
     };
     polyBtn.onStateChanged = [&, setParam](bool on) { setParam("poly_on", on ? 1.f : 0.f); };
     sidOnBtn.onStateChanged = [&, setParam](bool on) { setParam("sid_on", on ? 1.f : 0.f); };

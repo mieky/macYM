@@ -72,6 +72,7 @@ private:
     SpinnerControl presetSelector { 0, NUM_FACTORY_PRESETS - 1, 0 };
 
     // Bottom row
+    BeveledButton panicBtn     { "PANIC", "PANIC" };
     BeveledButton polyBtn      { "POLY", "MONO" };
     BeveledButton sidOnBtn     { "SID ON", "SID OFF" };
     SpinnerControl portaRate   { 0, 100, 4 };
