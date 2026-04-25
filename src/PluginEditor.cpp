@@ -118,13 +118,15 @@ bool YmvstEditor::keyPressed(const juce::KeyPress& key)
         keyCode -= 32; // to uppercase
 
     int note = keyToMidiNote(keyCode);
-    if (note >= 0 && keysDown.find(keyCode) == keysDown.end())
+    if (note >= 0)
     {
-        keysDown.insert(keyCode);
-        // Route through MIDI buffer (thread-safe, processed on audio thread)
-        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
-        processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)100), 0);
-        return true;
+        if (keysDown.find(keyCode) == keysDown.end())
+        {
+            keysDown.insert(keyCode);
+            const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
+            processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)100), 0);
+        }
+        return true; // Always consume music keys (suppresses macOS alert sound on repeat)
     }
     return false;
 }
