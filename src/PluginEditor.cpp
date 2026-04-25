@@ -246,6 +246,10 @@ void YmvstEditor::paint(juce::Graphics& g)
         line("  POLY/MONO     3-voice polyphony or mono w/ legato", RetroColours::textCyan);
         line("  FINE TUNE     Per-channel detune in cents", RetroColours::textCyan);
         y += 4;
+        line("CREDITS");
+        line("  Inspired by ymVST (2003) by Gareth Morris", RetroColours::textCyan);
+        line("  Ayumi emulator by Peter Sovietov", RetroColours::textCyan);
+        y += 4;
         line("CLICK ANYWHERE TO CLOSE", RetroColours::indicatorOn);
     }
 }
