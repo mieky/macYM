@@ -86,6 +86,12 @@ src/
     HardwareWaveformSelector.*  Envelope shape picker
 ```
 
+## Credits
+
+- **Gareth Morris** - original [ymVST](https://www.preromanbritain.com/ymvst/) for Windows (2003), which inspired this project's feature set, UI design, and MIDI CC mapping
+- **Peter Sovietov** - [ayumi](https://github.com/true-grue/ayumi), the YM2149/AY-3-8910 emulator at the heart of this plugin
+- **JUCE** - [framework](https://juce.com/) for cross-platform audio plugin development
+
 ## License
 
 GPL v3 (due to JUCE free license). Ayumi is MIT licensed.
