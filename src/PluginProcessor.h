@@ -42,4 +42,5 @@ private:
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void applyParametersToEngine();
+    void handleMidiCC(int cc, int value);
 };

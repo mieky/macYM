@@ -104,9 +104,11 @@ void YmvstProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
             int bendVal = ((msg.getPitchWheelValue() - 8192) * 50) / 8192;
             engine.setSoundBendDepth(bendVal);
         }
-        else if (msg.isController() && msg.getControllerNumber() == 1)
+        else if (msg.isController())
         {
-            engine.setTremoloDepth((msg.getControllerValue() * 15) / 127);
+            int cc = msg.getControllerNumber();
+            int val = msg.getControllerValue(); // 0-127
+            handleMidiCC(cc, val);
         }
     }
 
@@ -156,6 +158,77 @@ void YmvstProcessor::applyParametersToEngine()
     engine.setTremoloSpeed(static_cast<int>(*parameters.getRawParameterValue("trem_speed")));
     engine.setSidMode(*parameters.getRawParameterValue("sid_on") > 0.5f);
     engine.setPolyMode(*parameters.getRawParameterValue("poly_on") > 0.5f);
+}
+
+// MIDI CC mapping matching the original ymVST controller assignments.
+// See https://www.preromanbritain.com/ymvst/midi.txt
+void YmvstProcessor::handleMidiCC(int cc, int val)
+{
+    // Helper: set a parameter by ID, scaling 0-127 to the parameter's range
+    auto setScaled = [&](const juce::String& id, int v) {
+        if (auto* p = parameters.getParameter(id))
+            p->setValueNotifyingHost(static_cast<float>(v) / 127.0f);
+    };
+    // Helper: set a bool parameter from CC (>=64 = on)
+    auto setBool = [&](const juce::String& id, int v) {
+        if (auto* p = parameters.getParameter(id))
+            p->setValueNotifyingHost(v >= 64 ? 1.0f : 0.0f);
+    };
+
+    switch (cc)
+    {
+        case 1:   setScaled("trem_depth", val); break;      // Mod Wheel → Tremolo Depth
+        case 3:   setScaled("main_tune", val); break;        // Hardwave Main Tune
+        case 5:   setScaled("porta_rate", val); break;       // Portamento Time
+        case 9:   setScaled("noise_freq", val); break;       // Noise Freq
+
+        case 17:  setScaled("wf_length", val); break;        // Square (waveform) Length
+        case 19:  setScaled("arp_length", val); break;       // Arp Length
+
+        // CC 20-29: write waveform envelope values (10 of 32 steps, spread evenly)
+        case 20: case 21: case 22: case 23: case 24:
+        case 25: case 26: case 27: case 28: case 29:
+        {
+            int step = (cc - 20) * 3;  // Maps CC 20-29 to steps 0,3,6,...27
+            int wfVal = (val * 15) / 127;
+            engine.setWaveformValue(step, wfVal);
+            if (step + 1 < YmEngine::WAVEFORM_SIZE) engine.setWaveformValue(step + 1, wfVal);
+            if (step + 2 < YmEngine::WAVEFORM_SIZE) engine.setWaveformValue(step + 2, wfVal);
+            break;
+        }
+
+        case 30:  setScaled("nbend_depth", val); break;     // Noise Bend Depth
+        case 31:  setScaled("nbend_speed", val); break;     // Noise Bend Rate
+
+        case 64:  setScaled("env_period", val); break;      // Envelope Speed (Sustain)
+        case 70:  setScaled("env_shape", val); break;       // Hardware Waveform shape
+        case 71:  setScaled("sbend_speed", val); break;     // Pitch Bend Rate
+        case 72:  setScaled("sbend_depth", val); break;     // Pitch Bend Depth
+
+        case 77:  setBool("arp_sync", val); break;           // Arp Sync
+        case 78:  setBool("sid_on", val); break;             // SID FX On/Off
+
+        case 80:  setBool("noise_on", val); break;           // Noise On/Off
+        case 81:  setBool("wf_on", val); break;              // Square (waveform) On/Off
+        case 82:  setBool("ch1_env", val); break;            // Hardware Envelope On/Off
+        case 83:  setBool("arp_on", val); break;             // Arp On/Off
+
+        case 87:  setScaled("arp_speed", val); break;       // Arp Speed
+        case 88:  engine.setArpOffset(0, (val * 48 / 127) - 24); break;  // Arp Step 0 (-24..+24)
+        case 89:  engine.setArpOffset(1, (val * 48 / 127) - 24); break;  // Arp Step 1
+        case 90:  engine.setArpOffset(2, (val * 48 / 127) - 24); break;  // Arp Step 2
+
+        case 92:  setScaled("trem_speed", val); break;      // Tremolo Freq
+
+        case 94:  // Hardwave Detune → fine tune channel 2
+            engine.setFineTune(1, (val * 100 / 127) - 50);
+            break;
+        case 95:  // SID Detune → fine tune channel 3
+            engine.setFineTune(2, (val * 100 / 127) - 50);
+            break;
+
+        default: break;
+    }
 }
 
 const juce::String YmvstProcessor::getProgramName(int index)
