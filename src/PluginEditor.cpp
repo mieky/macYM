@@ -259,8 +259,8 @@ void YmvstEditor::resized()
 
     // Row 3: Preset | SID | Portamento | Controls
     presetLabel.setBounds(8, 260, 200, 38);
-    sidLabel.setBounds(216, 260, 80, 38);
-    portaLabel.setBounds(304, 260, 84, 38);
+    sidLabel.setBounds(216, 260, 100, 38);
+    portaLabel.setBounds(324, 260, 64, 38);
     controlsLabel.setBounds(396, 262, 396, 82);
 
     // Row 4: Controls  y=304..400
@@ -300,10 +300,10 @@ void YmvstEditor::resized()
     presetSelector.setBounds(18, 276, 55, 16);
 
     // --- SID ---
-    sidOnBtn.setBounds(224, 276, 65, 16);
+    sidOnBtn.setBounds(224, 276, 84, 16);
 
     // --- Portamento ---
-    portaRate.setBounds(312, 276, 68, 16);
+    portaRate.setBounds(330, 276, 52, 16);
 
     // --- Controls (right side) ---
     panicBtn.setBounds(18, 328, 60, 16);

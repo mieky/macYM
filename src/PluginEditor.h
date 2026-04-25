@@ -36,7 +36,7 @@ private:
     SectionLabel arpLabel      { "ARPEGGIATOR" };
     SectionLabel presetLabel   { "PRESET" };
     SectionLabel sidLabel      { "SID" };
-    SectionLabel portaLabel    { "PORTAMENTO" };
+    SectionLabel portaLabel    { "PORTA" };
     SectionLabel controlsLabel { "CONTROLS" };
 
     // Amplitude waveform section
