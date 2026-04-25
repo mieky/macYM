@@ -174,7 +174,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "LENGTH", 315, 155, 1, RetroColours::textWhite);
 
     // Noise labels
-    BitmapFont::drawText(g, "NOISE FRE.", 88, 224, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "FREQ", 100, 224, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
     BitmapFont::drawText(g, "SPEED", 680, 44, 1, RetroColours::textWhite);
@@ -306,9 +306,9 @@ void YmvstEditor::resized()
     portaRate.setBounds(312, 276, 68, 16);
 
     // --- Controls (right side) ---
-    panicBtn.setBounds(18, 304, 60, 16);
-    polyBtn.setBounds(86, 304, 65, 16);
-    helpBtn.setBounds(160, 304, 50, 16);
+    panicBtn.setBounds(18, 328, 60, 16);
+    polyBtn.setBounds(86, 328, 65, 16);
+    helpBtn.setBounds(160, 328, 50, 16);
 
     sBendDepth.setBounds(420, 282, 70, 16);
     sBendSpeed.setBounds(420, 306, 70, 16);
