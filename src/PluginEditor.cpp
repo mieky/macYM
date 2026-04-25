@@ -188,7 +188,7 @@ void YmvstEditor::paint(juce::Graphics& g)
     BitmapFont::drawText(g, "TREM.SPEED", 535, 348, 1, RetroColours::textWhite);
 
     // Version label
-    BitmapFont::drawText(g, "YM-VST V1.0", 10, 388, 1, RetroColours::textCyan);
+    BitmapFont::drawText(g, "YM-VST V1.0", 10, 380, 1, RetroColours::textCyan);
 }
 
 void YmvstEditor::resized()
