@@ -85,6 +85,14 @@ int YmvstEditor::keyToMidiNote(int keyCode)
 
 bool YmvstEditor::keyPressed(const juce::KeyPress& key)
 {
+    if (key == juce::KeyPress::escapeKey)
+    {
+        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
+        processor.editorMidiBuffer.addEvent(juce::MidiMessage::allNotesOff(1), 0);
+        keysDown.clear();
+        return true;
+    }
+
     int keyCode = key.getTextCharacter();
     if (keyCode >= 'a' && keyCode <= 'z')
         keyCode -= 32; // to uppercase
