@@ -197,12 +197,12 @@ void YmvstEditor::paint(juce::Graphics& g)
                              80, 279, 1, RetroColours::textCyan);
 
     // Controls labels
-    BitmapFont::drawText(g, "SOUND BEND", 420, 272, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 420, 298, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE BEND", 548, 272, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 548, 298, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "TREMOLO", 680, 272, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "DEPTH", 680, 298, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "SOUND BEND", 420, 276, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 420, 304, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "NOISE BEND", 548, 276, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 548, 304, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "TREMOLO", 680, 276, 1, RetroColours::textWhite);
+    BitmapFont::drawText(g, "DEPTH", 680, 304, 1, RetroColours::textWhite);
 
     // Version label
     BitmapFont::drawText(g, "YM-VST V1.0", 10, 356, 1, RetroColours::textCyan);
@@ -254,7 +254,7 @@ void YmvstEditor::resized()
     hwWfLabel.setBounds(396, 8, 396, 148);
 
     // Row 2: Noise (left) + Arpeggiator (right)
-    noiseLabel.setBounds(8, 204, 280, 50);
+    noiseLabel.setBounds(8, 204, 220, 50);
     arpLabel.setBounds(396, 162, 396, 95);
 
     // Row 3: Preset | SID | Portamento | Controls
@@ -310,12 +310,12 @@ void YmvstEditor::resized()
     polyBtn.setBounds(86, 328, 65, 16);
     helpBtn.setBounds(160, 328, 50, 16);
 
-    sBendDepth.setBounds(420, 282, 70, 16);
-    sBendSpeed.setBounds(420, 306, 70, 16);
-    nBendDepth.setBounds(548, 282, 70, 16);
-    nBendSpeed.setBounds(548, 306, 70, 16);
-    tremDepth.setBounds(680, 282, 70, 16);
-    tremSpeed.setBounds(680, 306, 70, 16);
+    sBendDepth.setBounds(420, 286, 70, 16);
+    sBendSpeed.setBounds(420, 312, 70, 16);
+    nBendDepth.setBounds(548, 286, 70, 16);
+    nBendSpeed.setBounds(548, 312, 70, 16);
+    tremDepth.setBounds(680, 286, 70, 16);
+    tremSpeed.setBounds(680, 312, 70, 16);
 }
 
 void YmvstEditor::connectCallbacks()
