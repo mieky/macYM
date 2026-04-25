@@ -4,6 +4,8 @@ A macOS-native (Apple Silicon) VST3/AU plugin that recreates the sound of the At
 
 Uses the [ayumi](https://github.com/true-grue/ayumi) emulator for accurate YM2149/AY-3-8910 chip emulation, with a feature layer adding arpeggiator, amplitude waveform editor, portamento, pitch bend, tremolo, and SID mode on top.
 
+![ymVST for macOS](ymvst-mac.png)
+
 ## Requirements
 
 - macOS (Apple Silicon or Intel)
