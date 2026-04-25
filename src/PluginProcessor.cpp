@@ -121,6 +121,30 @@ void YmvstProcessor::cacheParameterPointers()
     cachedParams.sidOn     = parameters.getRawParameterValue("sid_on");
     cachedParams.polyOn    = parameters.getRawParameterValue("poly_on");
     cachedParams.masterVol = parameters.getRawParameterValue("master_vol");
+
+    // Cache RangedAudioParameter pointers for CC handling
+    cachedCCParams.tremDepth  = parameters.getParameter("trem_depth");
+    cachedCCParams.mainTune   = parameters.getParameter("main_tune");
+    cachedCCParams.portaRate  = parameters.getParameter("porta_rate");
+    cachedCCParams.masterVol  = parameters.getParameter("master_vol");
+    cachedCCParams.noiseFreq  = parameters.getParameter("noise_freq");
+    cachedCCParams.wfLength   = parameters.getParameter("wf_length");
+    cachedCCParams.arpLength  = parameters.getParameter("arp_length");
+    cachedCCParams.nBendDepth = parameters.getParameter("nbend_depth");
+    cachedCCParams.nBendSpeed = parameters.getParameter("nbend_speed");
+    cachedCCParams.envPeriod  = parameters.getParameter("env_period");
+    cachedCCParams.envShape   = parameters.getParameter("env_shape");
+    cachedCCParams.sBendSpeed = parameters.getParameter("sbend_speed");
+    cachedCCParams.sBendDepth = parameters.getParameter("sbend_depth");
+    cachedCCParams.wfOneShot  = parameters.getParameter("wf_oneshot");
+    cachedCCParams.ch1Env     = parameters.getParameter("ch1_env");
+    cachedCCParams.arpSync    = parameters.getParameter("arp_sync");
+    cachedCCParams.sidOn      = parameters.getParameter("sid_on");
+    cachedCCParams.noiseOn    = parameters.getParameter("noise_on");
+    cachedCCParams.wfOn       = parameters.getParameter("wf_on");
+    cachedCCParams.arpOn      = parameters.getParameter("arp_on");
+    cachedCCParams.arpSpeed   = parameters.getParameter("arp_speed");
+    cachedCCParams.tremSpeed  = parameters.getParameter("trem_speed");
 }
 
 void YmvstProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
@@ -214,27 +238,26 @@ void YmvstProcessor::applyParametersToEngine()
 
 // MIDI CC mapping matching the original ymVST controller assignments.
 // See https://www.preromanbritain.com/ymvst/midi.txt
+// All parameter pointers are cached at construction - no string allocations.
 void YmvstProcessor::handleMidiCC(int cc, int val)
 {
-    auto setScaled = [&](const juce::String& id, int v) {
-        if (auto* p = parameters.getParameter(id))
-            p->setValueNotifyingHost(static_cast<float>(v) / 127.0f);
-    };
-    auto setBool = [&](const juce::String& id, int v) {
-        if (auto* p = parameters.getParameter(id))
-            p->setValueNotifyingHost(v >= 64 ? 1.0f : 0.0f);
-    };
+    float scaled = static_cast<float>(val) / 127.0f;
+    float boolVal = val >= 64 ? 1.0f : 0.0f;
+    auto& c = cachedCCParams;
+
+    auto setS = [scaled](juce::RangedAudioParameter* p) { if (p) p->setValueNotifyingHost(scaled); };
+    auto setB = [boolVal](juce::RangedAudioParameter* p) { if (p) p->setValueNotifyingHost(boolVal); };
 
     switch (cc)
     {
-        case 1:   setScaled("trem_depth", val); break;
-        case 3:   setScaled("main_tune", val); break;
-        case 5:   setScaled("porta_rate", val); break;
-        case 7:   setScaled("master_vol", val); break;
-        case 9:   setScaled("noise_freq", val); break;
-        case 16:  setScaled("noise_freq", val); break;
-        case 17:  setScaled("wf_length", val); break;
-        case 19:  setScaled("arp_length", val); break;
+        case 1:   setS(c.tremDepth); break;
+        case 3:   setS(c.mainTune); break;
+        case 5:   setS(c.portaRate); break;
+        case 7:   setS(c.masterVol); break;
+        case 9:   setS(c.noiseFreq); break;
+        case 16:  setS(c.noiseFreq); break;
+        case 17:  setS(c.wfLength); break;
+        case 19:  setS(c.arpLength); break;
         case 20: case 21: case 22: case 23: case 24:
         case 25: case 26: case 27: case 28: case 29:
         {
@@ -245,25 +268,25 @@ void YmvstProcessor::handleMidiCC(int cc, int val)
             if (step + 2 < YmEngine::WAVEFORM_SIZE) engine.setWaveformValue(step + 2, wfVal);
             break;
         }
-        case 30:  setScaled("nbend_depth", val); break;
-        case 31:  setScaled("nbend_speed", val); break;
-        case 64:  setScaled("env_period", val); break;
-        case 70:  setScaled("env_shape", val); break;
-        case 71:  setScaled("sbend_speed", val); break;
-        case 72:  setScaled("sbend_depth", val); break;
-        case 75:  setBool("wf_oneshot", val); break;
-        case 76:  setBool("ch1_env", val); break;
-        case 77:  setBool("arp_sync", val); break;
-        case 78:  setBool("sid_on", val); break;
-        case 80:  setBool("noise_on", val); break;
-        case 81:  setBool("wf_on", val); break;
-        case 82:  setBool("ch1_env", val); break;
-        case 83:  setBool("arp_on", val); break;
-        case 87:  setScaled("arp_speed", val); break;
+        case 30:  setS(c.nBendDepth); break;
+        case 31:  setS(c.nBendSpeed); break;
+        case 64:  setS(c.envPeriod); break;
+        case 70:  setS(c.envShape); break;
+        case 71:  setS(c.sBendSpeed); break;
+        case 72:  setS(c.sBendDepth); break;
+        case 75:  setB(c.wfOneShot); break;
+        case 76:  setB(c.ch1Env); break;
+        case 77:  setB(c.arpSync); break;
+        case 78:  setB(c.sidOn); break;
+        case 80:  setB(c.noiseOn); break;
+        case 81:  setB(c.wfOn); break;
+        case 82:  setB(c.ch1Env); break;
+        case 83:  setB(c.arpOn); break;
+        case 87:  setS(c.arpSpeed); break;
         case 88:  engine.setArpOffset(0, (val * 48 / 127) - 24); break;
         case 89:  engine.setArpOffset(1, (val * 48 / 127) - 24); break;
         case 90:  engine.setArpOffset(2, (val * 48 / 127) - 24); break;
-        case 92:  setScaled("trem_speed", val); break;
+        case 92:  setS(c.tremSpeed); break;
         case 94:  engine.setFineTune(1, (val * 100 / 127) - 50); break;
         case 95:  engine.setFineTune(2, (val * 100 / 127) - 50); break;
         default: break;

@@ -79,6 +79,32 @@ private:
     } cachedParams;
 
     void cacheParameterPointers();
+
+    // Cached RangedAudioParameter pointers for CC handling (avoid string lookups on audio thread)
+    struct CachedCCParams {
+        juce::RangedAudioParameter* tremDepth{};
+        juce::RangedAudioParameter* mainTune{};
+        juce::RangedAudioParameter* portaRate{};
+        juce::RangedAudioParameter* masterVol{};
+        juce::RangedAudioParameter* noiseFreq{};
+        juce::RangedAudioParameter* wfLength{};
+        juce::RangedAudioParameter* arpLength{};
+        juce::RangedAudioParameter* nBendDepth{};
+        juce::RangedAudioParameter* nBendSpeed{};
+        juce::RangedAudioParameter* envPeriod{};
+        juce::RangedAudioParameter* envShape{};
+        juce::RangedAudioParameter* sBendSpeed{};
+        juce::RangedAudioParameter* sBendDepth{};
+        juce::RangedAudioParameter* wfOneShot{};
+        juce::RangedAudioParameter* ch1Env{};
+        juce::RangedAudioParameter* arpSync{};
+        juce::RangedAudioParameter* sidOn{};
+        juce::RangedAudioParameter* noiseOn{};
+        juce::RangedAudioParameter* wfOn{};
+        juce::RangedAudioParameter* arpOn{};
+        juce::RangedAudioParameter* arpSpeed{};
+        juce::RangedAudioParameter* tremSpeed{};
+    } cachedCCParams;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void applyParametersToEngine();
     void handleMidiCC(int cc, int value);

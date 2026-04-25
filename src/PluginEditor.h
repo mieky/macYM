@@ -33,7 +33,6 @@ private:
     SectionLabel hwWfLabel     { "HARDWARE ENVELOPE" };
     SectionLabel noiseLabel    { "NOISE" };
     SectionLabel arpLabel      { "ARPEGGIATOR" };
-    SectionLabel soundLabel    { "SOUND" };
 
     // Amplitude waveform section
     WaveformEditor waveformEditor;
@@ -46,7 +45,6 @@ private:
     // Hardware waveform section
     HardwareWaveformSelector hwSelector;
     SpinnerControl envSpeed    { 0, 65535, 1000 };
-    BeveledButton syncOnBtn    { "SYNC ON", "SYNC OFF" };
 
     // Tuning
     SpinnerControl mainTune    { -24, 24, 0 };
@@ -57,7 +55,6 @@ private:
     // Noise section
     BeveledButton noiseOnBtn   { "ON", "OFF" };
     SpinnerControl noiseFreq   { 0, 31, 15 };
-    SpinnerControl noiseLen    { 1, 32, 1 };
 
     // Channel enables
     BeveledButton ch1Btn       { "ON", "OFF" };
@@ -70,9 +67,6 @@ private:
     SpinnerControl arpT1       { -24, 24, 12 };
     SpinnerControl arpSpeed    { 1, 16, 2 };
     SpinnerControl arpLength   { 1, 16, 7 };
-
-    // Sound section
-    BeveledButton sndSyncBtn   { "SYNC ON", "SYNC OFF" };
 
     // Preset selector
     SpinnerControl presetSelector { 0, NUM_FACTORY_PRESETS - 1, 0 };

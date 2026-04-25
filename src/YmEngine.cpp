@@ -182,11 +182,13 @@ void YmEngine::processBlock(float* leftOut, float* rightOut, int numSamples)
         ayumi_process(&ay);
         ayumi_remove_dc(&ay);
 
-        // SID mode: hard sync - reset channel 1's tone when channel 0's tone transitions
-        if (sidMode && ay.channels[0].tone != 0)
+        // SID mode: hard sync - reset channel 1 on rising edge of channel 0
+        if (sidMode)
         {
-            // When channel 0 completes a cycle (tone flips), reset channel 1
-            ay.channels[1].tone_counter = 0;
+            int ch0Tone = ay.channels[0].tone;
+            if (ch0Tone != 0 && prevCh0Tone == 0)
+                ay.channels[1].tone_counter = 0;
+            prevCh0Tone = ch0Tone;
         }
 
         float outL = static_cast<float>(ay.left) * masterVolume;
@@ -197,7 +199,7 @@ void YmEngine::processBlock(float* leftOut, float* rightOut, int numSamples)
         // Feed scope buffer (lock-free, written from audio thread)
         int wp = scopeWritePos.load(std::memory_order_relaxed);
         scopeBuffer[wp] = (outL + outR) * 0.5f;
-        scopeWritePos.store((wp + 1) % SCOPE_BUFFER_SIZE, std::memory_order_relaxed);
+        scopeWritePos.store((wp + 1) % SCOPE_BUFFER_SIZE, std::memory_order_release);
     }
 
     if (numSamples > 0)

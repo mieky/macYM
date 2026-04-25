@@ -129,6 +129,7 @@ private:
     double tremoloPhase = 0.0;
 
     bool sidMode = false;
+    int prevCh0Tone = 0; // For SID sync edge detection
     float masterVolume = 1.0f;
 
     // Mono note stack for proper last-note priority

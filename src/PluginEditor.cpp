@@ -9,13 +9,12 @@ YmvstEditor::YmvstEditor(YmvstProcessor& p)
 
     // Add all children
     std::initializer_list<juce::Component*> allChildren = {
-        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel, &soundLabel,
+        &ampWfLabel, &hwWfLabel, &noiseLabel, &arpLabel,
         &waveformEditor, &scopeDisplay, &wfOnBtn, &wfOneShotBtn, &wfSpeed, &wfLength,
-        &hwSelector, &envSpeed, &syncOnBtn, &mainTune, &fineTune1, &fineTune2, &fineTune3,
-        &noiseOnBtn, &noiseFreq, &noiseLen,
+        &hwSelector, &envSpeed, &mainTune, &fineTune1, &fineTune2, &fineTune3,
+        &noiseOnBtn, &noiseFreq,
         &ch1Btn, &ch2Btn, &ch3Btn,
         &arpOnBtn, &arpSyncBtn, &arpT1, &arpSpeed, &arpLength,
-        &sndSyncBtn,
         &presetSelector,
         &polyBtn, &sidOnBtn, &portaRate, &sBendDepth, &sBendSpeed, &nBendDepth, &nBendSpeed,
         &tremDepth, &tremSpeed
@@ -130,7 +129,7 @@ void YmvstEditor::timerCallback()
 {
     // Read scope samples from engine's lock-free buffer (written on audio thread)
     auto& engine = processor.getEngine();
-    int wp = engine.scopeWritePos.load(std::memory_order_relaxed);
+    int wp = engine.scopeWritePos.load(std::memory_order_acquire);
     for (int i = 0; i < ScopeDisplay::BUFFER_SIZE; ++i)
     {
         int idx = (wp - ScopeDisplay::BUFFER_SIZE + i + YmEngine::SCOPE_BUFFER_SIZE) % YmEngine::SCOPE_BUFFER_SIZE;
@@ -151,7 +150,6 @@ void YmvstEditor::paint(juce::Graphics& g)
 
     // Noise labels
     BitmapFont::drawText(g, "NOISE FRE.", 120, 198, 1, RetroColours::textWhite);
-    BitmapFont::drawText(g, "NOISE LEN.", 240, 198, 1, RetroColours::textWhite);
 
     // Hardware envelope section labels
     BitmapFont::drawText(g, "SPEED", 540, 38, 1, RetroColours::textWhite);
@@ -193,7 +191,6 @@ void YmvstEditor::resized()
     hwWfLabel.setBounds(310, 5, 325, 130);
     noiseLabel.setBounds(5, 185, 345, 45);
     arpLabel.setBounds(355, 185, 280, 100);
-    soundLabel.setBounds(5, 235, 345, 90);
 
     // Amplitude waveform editor + scope
     waveformEditor.setBounds(15, 20, 150, 120);
@@ -208,7 +205,6 @@ void YmvstEditor::resized()
     // Hardware envelope section
     hwSelector.setBounds(320, 18, 200, 68);
     envSpeed.setBounds(540, 50, 80, 14);
-    syncOnBtn.setBounds(540, 18, 80, 14);
 
     // Channel on/off buttons (row below envelope shapes)
     ch1Btn.setBounds(320, 106, 35, 14);
@@ -226,7 +222,6 @@ void YmvstEditor::resized()
     // Noise
     noiseOnBtn.setBounds(15, 200, 50, 14);
     noiseFreq.setBounds(120, 212, 80, 14);
-    noiseLen.setBounds(250, 212, 80, 14);
 
     // Arpeggiator
     arpOnBtn.setBounds(365, 200, 50, 14);
@@ -234,9 +229,6 @@ void YmvstEditor::resized()
     arpT1.setBounds(530, 200, 55, 14);
     arpSpeed.setBounds(505, 260, 55, 14);
     arpLength.setBounds(570, 260, 55, 14);
-
-    // Sound
-    sndSyncBtn.setBounds(15, 252, 90, 14);
 
     // Preset selector
     presetSelector.setBounds(15, 285, 50, 14);
