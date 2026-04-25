@@ -15,17 +15,17 @@ void HardwareWaveformSelector::resized()
 {
     auto b = getLocalBounds();
 
-    // Channel toggles on the left
-    auto toggleArea = b.removeFromLeft(50);
-    chEnv1.setBounds(toggleArea.removeFromTop(18).reduced(2));
-    chEnv2.setBounds(toggleArea.removeFromTop(18).reduced(2));
-    chEnv3.setBounds(toggleArea.removeFromTop(18).reduced(2));
+    // Channel toggles on the left (wide enough for "OFF" text)
+    auto toggleArea = b.removeFromLeft(60);
+    chEnv1.setBounds(toggleArea.removeFromTop(22).reduced(2));
+    chEnv2.setBounds(toggleArea.removeFromTop(22).reduced(2));
+    chEnv3.setBounds(toggleArea.removeFromTop(22).reduced(2));
 }
 
 void HardwareWaveformSelector::paint(juce::Graphics& g)
 {
     auto b = getLocalBounds();
-    auto shapeArea = b.withTrimmedLeft(52);
+    auto shapeArea = b.withTrimmedLeft(62);
 
     // Draw 8 envelope shape icons in 2 rows of 4
     int iconW = shapeArea.getWidth() / 4;
@@ -46,7 +46,7 @@ void HardwareWaveformSelector::paint(juce::Graphics& g)
 void HardwareWaveformSelector::mouseDown(const juce::MouseEvent& e)
 {
     auto b = getLocalBounds();
-    auto shapeArea = b.withTrimmedLeft(52);
+    auto shapeArea = b.withTrimmedLeft(62);
 
     if (!shapeArea.contains(e.getPosition())) return;
 
