@@ -2,6 +2,10 @@
 
 **A macOS native (Apple Silicon and Intel) VST3 / AU synthesizer plugin that emulates the Atari ST's YM2149 / AY-3-8910 PSG sound chip.**
 
+[![Claude](https://img.shields.io/badge/Claude-AI-black?logo=anthropic)](https://claude.ai)
+[![Release](https://img.shields.io/github/v/release/mieky/macYM)](https://github.com/mieky/macYM/releases/latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 If you came here looking for "ymVST for Mac", "ymVST macOS port", "Atari ST YM2149 VST for Mac", or "AY-3-8910 plugin for macOS" — this is a spiritual successor to Gareth Morris's classic Windows-only [ymVST](https://www.preromanbritain.com/ymvst/) (2003), rebuilt from scratch for modern macOS in C++ with JUCE.
 
 ![macYM screenshot](macym.png)
@@ -32,11 +36,18 @@ If you came here looking for "ymVST for Mac", "ymVST macOS port", "Atari ST YM21
 
 ## Install (pre-built binaries)
 
-Download the latest release from the [Releases page](https://github.com/) and copy the plugins:
+Download the latest release from the [Releases page](https://github.com/mieky/macYM/releases) and copy the plugins:
 
 ```bash
 cp -r macYM.vst3 ~/Library/Audio/Plug-Ins/VST3/
 cp -r macYM.component ~/Library/Audio/Plug-Ins/Components/
+```
+
+The binaries are not codesigned, so remove the macOS quarantine flag once after copying:
+
+```bash
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/macYM.vst3
+xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/macYM.component
 ```
 
 Then rescan plugins in your DAW.

@@ -1,6 +1,7 @@
 # Build
 build/
 cmake-build-*/
+dist/
 
 # IDE
 .idea/
@@ -12,3 +13,6 @@ xcuserdata/
 
 # JUCE
 JuceLibraryCode/
+
+# Claude
+.claude/settings.local.json
