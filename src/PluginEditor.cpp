@@ -290,7 +290,7 @@ void YmvstEditor::resized()
     fineTune1.setBounds(560, 118, 48, 16);
     fineTune2.setBounds(612, 118, 48, 16);
     fineTune3.setBounds(664, 118, 48, 16);
-    mainTune.setBounds(732, 118, 52, 16);
+    mainTune.setBounds(724, 118, 64, 16);
 
     // --- Noise ---
     noiseOnBtn.setBounds(18, 222, 55, 16);
