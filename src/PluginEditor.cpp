@@ -94,7 +94,9 @@ bool YmvstEditor::keyPressed(const juce::KeyPress& key)
     if (note >= 0 && keysDown.find(keyCode) == keysDown.end())
     {
         keysDown.insert(keyCode);
-        processor.getEngine().noteOn(note, 100);
+        // Route through MIDI buffer (thread-safe, processed on audio thread)
+        const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
+        processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOn(1, note, (juce::uint8)100), 0);
         return true;
     }
     return false;
@@ -102,12 +104,11 @@ bool YmvstEditor::keyPressed(const juce::KeyPress& key)
 
 bool YmvstEditor::keyStateChanged(bool /*isKeyDown*/)
 {
-    // Check which keys were released
     std::vector<int> released;
     for (int keyCode : keysDown)
     {
         if (!juce::KeyPress::isKeyCurrentlyDown(keyCode) &&
-            !juce::KeyPress::isKeyCurrentlyDown(keyCode + 32)) // check lowercase too
+            !juce::KeyPress::isKeyCurrentlyDown(keyCode + 32))
         {
             released.push_back(keyCode);
         }
@@ -117,16 +118,24 @@ bool YmvstEditor::keyStateChanged(bool /*isKeyDown*/)
         keysDown.erase(keyCode);
         int note = keyToMidiNote(keyCode);
         if (note >= 0)
-            processor.getEngine().noteOff(note);
+        {
+            const juce::SpinLock::ScopedLockType lock(processor.editorMidiLock);
+            processor.editorMidiBuffer.addEvent(juce::MidiMessage::noteOff(1, note), 0);
+        }
     }
     return !released.empty();
 }
 
 void YmvstEditor::timerCallback()
 {
-    // Feed scope display from engine
-    // (In a production plugin you'd use a lock-free FIFO; for now this is sufficient)
-    scopeDisplay.pushSample(processor.getEngine().getLastOutputSample());
+    // Read scope samples from engine's lock-free buffer (written on audio thread)
+    auto& engine = processor.getEngine();
+    int wp = engine.scopeWritePos.load(std::memory_order_relaxed);
+    for (int i = 0; i < ScopeDisplay::BUFFER_SIZE; ++i)
+    {
+        int idx = (wp - ScopeDisplay::BUFFER_SIZE + i + YmEngine::SCOPE_BUFFER_SIZE) % YmEngine::SCOPE_BUFFER_SIZE;
+        scopeDisplay.pushSample(engine.scopeBuffer[idx]);
+    }
 }
 
 void YmvstEditor::paint(juce::Graphics& g)
@@ -260,6 +269,9 @@ void YmvstEditor::connectCallbacks()
     noiseFreq.onValueChanged = [&, setParam](int v) { setParam("noise_freq", (float)v); };
 
     mainTune.onValueChanged = [&, setParam](int v) { setParam("main_tune", (float)v); };
+    fineTune1.onValueChanged = [&, setParam](int v) { setParam("ch1_fine", (float)v); };
+    fineTune2.onValueChanged = [&, setParam](int v) { setParam("ch2_fine", (float)v); };
+    fineTune3.onValueChanged = [&, setParam](int v) { setParam("ch3_fine", (float)v); };
 
     hwSelector.onShapeChanged = [&, setParam](int s) { setParam("env_shape", (float)s); };
     hwSelector.chEnv1.onStateChanged = [&, setParam](bool on) { setParam("ch1_env", on ? 1.f : 0.f); };
@@ -279,6 +291,7 @@ void YmvstEditor::connectCallbacks()
     wfLength.onValueChanged = [&, setParam](int v) { setParam("wf_length", (float)v); };
 
     waveformEditor.onValueChanged = [this](int idx, int val) {
+        // Single int write is naturally atomic on modern architectures
         processor.getEngine().setWaveformValue(idx, val);
     };
 

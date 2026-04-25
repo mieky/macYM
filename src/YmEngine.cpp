@@ -55,7 +55,8 @@ void YmEngine::noteOn(int midiNote, int velocity)
     }
     else
     {
-        // Mono: all enabled channels play this note
+        // Mono: all enabled channels play this note (with note stack)
+        noteStackPush(midiNote);
         double prevPeriod = voices[0].period;
         for (int i = 0; i < NUM_CHANNELS; ++i)
         {
@@ -92,7 +93,6 @@ void YmEngine::noteOn(int midiNote, int velocity)
 
 void YmEngine::noteOff()
 {
-    // Release all voices (mono mode, or "all notes off")
     for (int i = 0; i < NUM_CHANNELS; ++i)
     {
         voices[i].active = false;
@@ -100,13 +100,13 @@ void YmEngine::noteOff()
         voices[i].velocity = 0;
         ayumi_set_volume(&ay, i, 0);
     }
+    noteStackSize = 0;
 }
 
 void YmEngine::noteOff(int midiNote)
 {
     if (polyMode)
     {
-        // Release the voice playing this specific note
         for (int i = 0; i < NUM_CHANNELS; ++i)
         {
             if (voices[i].active && voices[i].note == midiNote)
@@ -115,13 +115,52 @@ void YmEngine::noteOff(int midiNote)
                 voices[i].note = -1;
                 voices[i].velocity = 0;
                 ayumi_set_volume(&ay, i, 0);
-                return; // Only release one voice per noteOff
+                return;
             }
         }
     }
     else
     {
-        noteOff();
+        // Mono: remove from note stack, revert to previous note if any
+        noteStackRemove(midiNote);
+        if (noteStackSize > 0)
+        {
+            // Retrigger the most recent held note
+            int prevNote = noteStack[noteStackSize - 1];
+            for (int i = 0; i < NUM_CHANNELS; ++i)
+            {
+                voices[i].note = prevNote;
+                voices[i].targetPeriod = static_cast<double>(noteToTonePeriod(prevNote));
+                if (!portamentoEnabled)
+                    voices[i].period = voices[i].targetPeriod;
+            }
+            updateChipRegisters();
+        }
+        else
+        {
+            noteOff();
+        }
+    }
+}
+
+void YmEngine::noteStackPush(int note)
+{
+    noteStackRemove(note); // Avoid duplicates
+    if (noteStackSize < NOTE_STACK_SIZE)
+        noteStack[noteStackSize++] = note;
+}
+
+void YmEngine::noteStackRemove(int note)
+{
+    for (int i = 0; i < noteStackSize; ++i)
+    {
+        if (noteStack[i] == note)
+        {
+            for (int j = i; j < noteStackSize - 1; ++j)
+                noteStack[j] = noteStack[j + 1];
+            --noteStackSize;
+            return;
+        }
     }
 }
 
@@ -143,8 +182,22 @@ void YmEngine::processBlock(float* leftOut, float* rightOut, int numSamples)
         ayumi_process(&ay);
         ayumi_remove_dc(&ay);
 
-        leftOut[s] = static_cast<float>(ay.left) * masterVolume;
-        rightOut[s] = static_cast<float>(ay.right) * masterVolume;
+        // SID mode: hard sync - reset channel 1's tone when channel 0's tone transitions
+        if (sidMode && ay.channels[0].tone != 0)
+        {
+            // When channel 0 completes a cycle (tone flips), reset channel 1
+            ay.channels[1].tone_counter = 0;
+        }
+
+        float outL = static_cast<float>(ay.left) * masterVolume;
+        float outR = static_cast<float>(ay.right) * masterVolume;
+        leftOut[s] = outL;
+        rightOut[s] = outR;
+
+        // Feed scope buffer (lock-free, written from audio thread)
+        int wp = scopeWritePos.load(std::memory_order_relaxed);
+        scopeBuffer[wp] = (outL + outR) * 0.5f;
+        scopeWritePos.store((wp + 1) % SCOPE_BUFFER_SIZE, std::memory_order_relaxed);
     }
 
     if (numSamples > 0)
@@ -335,7 +388,12 @@ void YmEngine::updateChipRegisters()
     ayumi_set_noise(&ay, noiseP);
 
     ayumi_set_envelope(&ay, envelopePeriod);
-    ayumi_set_envelope_shape(&ay, envelopeShape);
+    // Only reset envelope shape when it actually changes (resetting restarts the envelope)
+    if (envelopeShape != prevEnvelopeShape)
+    {
+        ayumi_set_envelope_shape(&ay, envelopeShape);
+        prevEnvelopeShape = envelopeShape;
+    }
 }
 
 // --- Setters ---

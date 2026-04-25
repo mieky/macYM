@@ -91,6 +91,7 @@ private:
     bool channelNoiseOn[NUM_CHANNELS] = { false, false, false };
 
     int envelopeShape = 0;
+    int prevEnvelopeShape = -1; // Track changes to avoid resetting envelope
     int envelopePeriod = 0;
     bool envelopeEnabled[NUM_CHANNELS] = {};
 
@@ -129,6 +130,20 @@ private:
 
     bool sidMode = false;
     float masterVolume = 1.0f;
+
+    // Mono note stack for proper last-note priority
+    static constexpr int NOTE_STACK_SIZE = 16;
+    int noteStack[NOTE_STACK_SIZE] = {};
+    int noteStackSize = 0;
+    void noteStackPush(int note);
+    void noteStackRemove(int note);
+
+    // Lock-free scope output buffer
+public:
+    static constexpr int SCOPE_BUFFER_SIZE = 2048;
+    std::atomic<int> scopeWritePos { 0 };
+    float scopeBuffer[SCOPE_BUFFER_SIZE] = {};
+private:
 
     float lastOutputSample = 0.0f;
     int tickCounter = 0;

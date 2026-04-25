@@ -35,11 +35,50 @@ public:
     YmEngine& getEngine() { return engine; }
     juce::AudioProcessorValueTreeState& getParams() { return parameters; }
 
+    // Lock-free MIDI queue for editor -> audio thread note injection
+    juce::MidiBuffer editorMidiBuffer;
+    juce::SpinLock editorMidiLock;
+
 private:
     juce::AudioProcessorValueTreeState parameters;
     YmEngine engine;
     int currentPreset = 0;
 
+    // Cached parameter pointers (safe to read on audio thread without allocation)
+    struct CachedParams {
+        std::atomic<float>* chOn[3]{};
+        std::atomic<float>* chFine[3]{};
+        std::atomic<float>* chTone[3]{};
+        std::atomic<float>* chNoise[3]{};
+        std::atomic<float>* chEnv[3]{};
+        std::atomic<float>* mainTune{};
+        std::atomic<float>* noiseOn{};
+        std::atomic<float>* noiseFreq{};
+        std::atomic<float>* envShape{};
+        std::atomic<float>* envPeriod{};
+        std::atomic<float>* arpOn{};
+        std::atomic<float>* arpSync{};
+        std::atomic<float>* arpSpeed{};
+        std::atomic<float>* arpLength{};
+        std::atomic<float>* arpT1{};
+        std::atomic<float>* wfOn{};
+        std::atomic<float>* wfOneShot{};
+        std::atomic<float>* wfSpeed{};
+        std::atomic<float>* wfLength{};
+        std::atomic<float>* portaOn{};
+        std::atomic<float>* portaRate{};
+        std::atomic<float>* sBendDepth{};
+        std::atomic<float>* sBendSpeed{};
+        std::atomic<float>* nBendDepth{};
+        std::atomic<float>* nBendSpeed{};
+        std::atomic<float>* tremDepth{};
+        std::atomic<float>* tremSpeed{};
+        std::atomic<float>* sidOn{};
+        std::atomic<float>* polyOn{};
+        std::atomic<float>* masterVol{};
+    } cachedParams;
+
+    void cacheParameterPointers();
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     void applyParametersToEngine();
     void handleMidiCC(int cc, int value);

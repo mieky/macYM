@@ -45,7 +45,7 @@ private:
 
     // Hardware waveform section
     HardwareWaveformSelector hwSelector;
-    SpinnerControl envSpeed    { 0, 9999, 1000 };
+    SpinnerControl envSpeed    { 0, 65535, 1000 };
     BeveledButton syncOnBtn    { "SYNC ON", "SYNC OFF" };
 
     // Tuning

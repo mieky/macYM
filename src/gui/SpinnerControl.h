@@ -7,6 +7,7 @@ public:
     SpinnerControl(int minVal, int maxVal, int defaultVal);
 
     void paint(juce::Graphics&) override;
+    void resized() override;
     void mouseDown(const juce::MouseEvent&) override;
 
     int getValue() const { return value; }

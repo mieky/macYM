@@ -81,6 +81,46 @@ YmvstProcessor::YmvstProcessor()
           .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       parameters(*this, nullptr, "YMVST_PARAMS", createParameterLayout())
 {
+    cacheParameterPointers();
+}
+
+void YmvstProcessor::cacheParameterPointers()
+{
+    static const juce::String chNames[] = { "1", "2", "3" };
+    for (int i = 0; i < 3; ++i)
+    {
+        auto ch = chNames[i];
+        cachedParams.chOn[i]    = parameters.getRawParameterValue("ch" + ch + "_on");
+        cachedParams.chFine[i]  = parameters.getRawParameterValue("ch" + ch + "_fine");
+        cachedParams.chTone[i]  = parameters.getRawParameterValue("ch" + ch + "_tone");
+        cachedParams.chNoise[i] = parameters.getRawParameterValue("ch" + ch + "_noise");
+        cachedParams.chEnv[i]   = parameters.getRawParameterValue("ch" + ch + "_env");
+    }
+    cachedParams.mainTune  = parameters.getRawParameterValue("main_tune");
+    cachedParams.noiseOn   = parameters.getRawParameterValue("noise_on");
+    cachedParams.noiseFreq = parameters.getRawParameterValue("noise_freq");
+    cachedParams.envShape  = parameters.getRawParameterValue("env_shape");
+    cachedParams.envPeriod = parameters.getRawParameterValue("env_period");
+    cachedParams.arpOn     = parameters.getRawParameterValue("arp_on");
+    cachedParams.arpSync   = parameters.getRawParameterValue("arp_sync");
+    cachedParams.arpSpeed  = parameters.getRawParameterValue("arp_speed");
+    cachedParams.arpLength = parameters.getRawParameterValue("arp_length");
+    cachedParams.arpT1     = parameters.getRawParameterValue("arp_t1");
+    cachedParams.wfOn      = parameters.getRawParameterValue("wf_on");
+    cachedParams.wfOneShot = parameters.getRawParameterValue("wf_oneshot");
+    cachedParams.wfSpeed   = parameters.getRawParameterValue("wf_speed");
+    cachedParams.wfLength  = parameters.getRawParameterValue("wf_length");
+    cachedParams.portaOn   = parameters.getRawParameterValue("porta_on");
+    cachedParams.portaRate = parameters.getRawParameterValue("porta_rate");
+    cachedParams.sBendDepth = parameters.getRawParameterValue("sbend_depth");
+    cachedParams.sBendSpeed = parameters.getRawParameterValue("sbend_speed");
+    cachedParams.nBendDepth = parameters.getRawParameterValue("nbend_depth");
+    cachedParams.nBendSpeed = parameters.getRawParameterValue("nbend_speed");
+    cachedParams.tremDepth = parameters.getRawParameterValue("trem_depth");
+    cachedParams.tremSpeed = parameters.getRawParameterValue("trem_speed");
+    cachedParams.sidOn     = parameters.getRawParameterValue("sid_on");
+    cachedParams.polyOn    = parameters.getRawParameterValue("poly_on");
+    cachedParams.masterVol = parameters.getRawParameterValue("master_vol");
 }
 
 void YmvstProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
@@ -93,6 +133,16 @@ void YmvstProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
 {
     buffer.clear();
     applyParametersToEngine();
+
+    // Merge editor MIDI (keyboard notes from GUI thread)
+    {
+        const juce::SpinLock::ScopedTryLockType lock(editorMidiLock);
+        if (lock.isLocked())
+        {
+            midi.addEvents(editorMidiBuffer, 0, buffer.getNumSamples(), 0);
+            editorMidiBuffer.clear();
+        }
+    }
 
     for (const auto metadata : midi)
     {
@@ -108,9 +158,7 @@ void YmvstProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
         }
         else if (msg.isController())
         {
-            int cc = msg.getControllerNumber();
-            int val = msg.getControllerValue(); // 0-127
-            handleMidiCC(cc, val);
+            handleMidiCC(msg.getControllerNumber(), msg.getControllerValue());
         }
     }
 
@@ -119,60 +167,59 @@ void YmvstProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBu
     engine.processBlock(left, right, buffer.getNumSamples());
 }
 
+// No allocations - all reads are from cached atomic pointers
 void YmvstProcessor::applyParametersToEngine()
 {
+    auto& p = cachedParams;
     for (int i = 0; i < 3; ++i)
     {
-        auto ch = CH_NAMES[i];
-        engine.setChannelEnabled(i, *parameters.getRawParameterValue("ch" + ch + "_on") > 0.5f);
-        engine.setFineTune(i, static_cast<int>(*parameters.getRawParameterValue("ch" + ch + "_fine")));
-        engine.setChannelToneOn(i, *parameters.getRawParameterValue("ch" + ch + "_tone") > 0.5f);
-        engine.setChannelNoiseOn(i, *parameters.getRawParameterValue("ch" + ch + "_noise") > 0.5f);
-        engine.setEnvelopeEnabled(i, *parameters.getRawParameterValue("ch" + ch + "_env") > 0.5f);
+        engine.setChannelEnabled(i, p.chOn[i]->load() > 0.5f);
+        engine.setFineTune(i, static_cast<int>(p.chFine[i]->load()));
+        engine.setChannelToneOn(i, p.chTone[i]->load() > 0.5f);
+        engine.setChannelNoiseOn(i, p.chNoise[i]->load() > 0.5f);
+        engine.setEnvelopeEnabled(i, p.chEnv[i]->load() > 0.5f);
     }
 
-    engine.setMainTuning(static_cast<int>(*parameters.getRawParameterValue("main_tune")));
-    engine.setNoiseEnabled(*parameters.getRawParameterValue("noise_on") > 0.5f);
-    engine.setNoiseFrequency(static_cast<int>(*parameters.getRawParameterValue("noise_freq")));
-    engine.setEnvelopeShape(static_cast<int>(*parameters.getRawParameterValue("env_shape")));
-    engine.setEnvelopePeriod(static_cast<int>(*parameters.getRawParameterValue("env_period")));
+    engine.setMainTuning(static_cast<int>(p.mainTune->load()));
+    engine.setNoiseEnabled(p.noiseOn->load() > 0.5f);
+    engine.setNoiseFrequency(static_cast<int>(p.noiseFreq->load()));
+    engine.setEnvelopeShape(static_cast<int>(p.envShape->load()));
+    engine.setEnvelopePeriod(static_cast<int>(p.envPeriod->load()));
 
-    engine.setArpEnabled(*parameters.getRawParameterValue("arp_on") > 0.5f);
-    engine.setArpSync(*parameters.getRawParameterValue("arp_sync") > 0.5f);
-    engine.setArpSpeed(static_cast<int>(*parameters.getRawParameterValue("arp_speed")));
-    engine.setArpLength(static_cast<int>(*parameters.getRawParameterValue("arp_length")));
-    engine.setArpOffset(0, static_cast<int>(*parameters.getRawParameterValue("arp_t1")));
+    engine.setArpEnabled(p.arpOn->load() > 0.5f);
+    engine.setArpSync(p.arpSync->load() > 0.5f);
+    engine.setArpSpeed(static_cast<int>(p.arpSpeed->load()));
+    engine.setArpLength(static_cast<int>(p.arpLength->load()));
+    engine.setArpOffset(0, static_cast<int>(p.arpT1->load()));
 
-    engine.setWaveformEnabled(*parameters.getRawParameterValue("wf_on") > 0.5f);
-    engine.setWaveformSpeed(static_cast<int>(*parameters.getRawParameterValue("wf_speed")));
-    engine.setWaveformLength(static_cast<int>(*parameters.getRawParameterValue("wf_length")));
-    engine.setWaveformOneShot(*parameters.getRawParameterValue("wf_oneshot") > 0.5f);
+    engine.setWaveformEnabled(p.wfOn->load() > 0.5f);
+    engine.setWaveformSpeed(static_cast<int>(p.wfSpeed->load()));
+    engine.setWaveformLength(static_cast<int>(p.wfLength->load()));
+    engine.setWaveformOneShot(p.wfOneShot->load() > 0.5f);
 
-    engine.setPortamentoEnabled(*parameters.getRawParameterValue("porta_on") > 0.5f);
-    engine.setPortamentoRate(static_cast<int>(*parameters.getRawParameterValue("porta_rate")));
+    engine.setPortamentoEnabled(p.portaOn->load() > 0.5f);
+    engine.setPortamentoRate(static_cast<int>(p.portaRate->load()));
 
-    engine.setSoundBendDepth(static_cast<int>(*parameters.getRawParameterValue("sbend_depth")));
-    engine.setSoundBendSpeed(static_cast<int>(*parameters.getRawParameterValue("sbend_speed")));
-    engine.setNoiseBendDepth(static_cast<int>(*parameters.getRawParameterValue("nbend_depth")));
-    engine.setNoiseBendSpeed(static_cast<int>(*parameters.getRawParameterValue("nbend_speed")));
+    engine.setSoundBendDepth(static_cast<int>(p.sBendDepth->load()));
+    engine.setSoundBendSpeed(static_cast<int>(p.sBendSpeed->load()));
+    engine.setNoiseBendDepth(static_cast<int>(p.nBendDepth->load()));
+    engine.setNoiseBendSpeed(static_cast<int>(p.nBendSpeed->load()));
 
-    engine.setTremoloDepth(static_cast<int>(*parameters.getRawParameterValue("trem_depth")));
-    engine.setTremoloSpeed(static_cast<int>(*parameters.getRawParameterValue("trem_speed")));
-    engine.setSidMode(*parameters.getRawParameterValue("sid_on") > 0.5f);
-    engine.setPolyMode(*parameters.getRawParameterValue("poly_on") > 0.5f);
-    engine.setMasterVolume(*parameters.getRawParameterValue("master_vol"));
+    engine.setTremoloDepth(static_cast<int>(p.tremDepth->load()));
+    engine.setTremoloSpeed(static_cast<int>(p.tremSpeed->load()));
+    engine.setSidMode(p.sidOn->load() > 0.5f);
+    engine.setPolyMode(p.polyOn->load() > 0.5f);
+    engine.setMasterVolume(p.masterVol->load());
 }
 
 // MIDI CC mapping matching the original ymVST controller assignments.
 // See https://www.preromanbritain.com/ymvst/midi.txt
 void YmvstProcessor::handleMidiCC(int cc, int val)
 {
-    // Helper: set a parameter by ID, scaling 0-127 to the parameter's range
     auto setScaled = [&](const juce::String& id, int v) {
         if (auto* p = parameters.getParameter(id))
             p->setValueNotifyingHost(static_cast<float>(v) / 127.0f);
     };
-    // Helper: set a bool parameter from CC (>=64 = on)
     auto setBool = [&](const juce::String& id, int v) {
         if (auto* p = parameters.getParameter(id))
             p->setValueNotifyingHost(v >= 64 ? 1.0f : 0.0f);
@@ -180,60 +227,45 @@ void YmvstProcessor::handleMidiCC(int cc, int val)
 
     switch (cc)
     {
-        case 1:   setScaled("trem_depth", val); break;      // Mod Wheel → Tremolo Depth
-        case 3:   setScaled("main_tune", val); break;        // Hardwave Main Tune
-        case 5:   setScaled("porta_rate", val); break;       // Portamento Time
-        case 7:   setScaled("master_vol", val); break;       // Master Volume
-        case 9:   setScaled("noise_freq", val); break;       // Noise Freq
-
-        case 16:  setScaled("noise_freq", val); break;       // Noise Length (mapped to freq)
-        case 17:  setScaled("wf_length", val); break;        // Square (waveform) Length
-        case 19:  setScaled("arp_length", val); break;       // Arp Length
-
-        // CC 20-29: write waveform envelope values (10 of 32 steps, spread evenly)
+        case 1:   setScaled("trem_depth", val); break;
+        case 3:   setScaled("main_tune", val); break;
+        case 5:   setScaled("porta_rate", val); break;
+        case 7:   setScaled("master_vol", val); break;
+        case 9:   setScaled("noise_freq", val); break;
+        case 16:  setScaled("noise_freq", val); break;
+        case 17:  setScaled("wf_length", val); break;
+        case 19:  setScaled("arp_length", val); break;
         case 20: case 21: case 22: case 23: case 24:
         case 25: case 26: case 27: case 28: case 29:
         {
-            int step = (cc - 20) * 3;  // Maps CC 20-29 to steps 0,3,6,...27
+            int step = (cc - 20) * 3;
             int wfVal = (val * 15) / 127;
             engine.setWaveformValue(step, wfVal);
             if (step + 1 < YmEngine::WAVEFORM_SIZE) engine.setWaveformValue(step + 1, wfVal);
             if (step + 2 < YmEngine::WAVEFORM_SIZE) engine.setWaveformValue(step + 2, wfVal);
             break;
         }
-
-        case 30:  setScaled("nbend_depth", val); break;     // Noise Bend Depth
-        case 31:  setScaled("nbend_speed", val); break;     // Noise Bend Rate
-
-        case 64:  setScaled("env_period", val); break;      // Envelope Speed (Sustain)
-        case 70:  setScaled("env_shape", val); break;       // Hardware Waveform shape
-        case 71:  setScaled("sbend_speed", val); break;     // Pitch Bend Rate
-        case 72:  setScaled("sbend_depth", val); break;     // Pitch Bend Depth
-
-        case 75:  setBool("wf_oneshot", val); break;          // Square Sync (one-shot toggle)
-        case 76:  setBool("ch1_env", val); break;            // Hardwave Sync (envelope toggle)
-        case 77:  setBool("arp_sync", val); break;           // Arp Sync
-        case 78:  setBool("sid_on", val); break;             // SID FX On/Off
-
-        case 80:  setBool("noise_on", val); break;           // Noise On/Off
-        case 81:  setBool("wf_on", val); break;              // Square (waveform) On/Off
-        case 82:  setBool("ch1_env", val); break;            // Hardware Envelope On/Off
-        case 83:  setBool("arp_on", val); break;             // Arp On/Off
-
-        case 87:  setScaled("arp_speed", val); break;       // Arp Speed
-        case 88:  engine.setArpOffset(0, (val * 48 / 127) - 24); break;  // Arp Step 0 (-24..+24)
-        case 89:  engine.setArpOffset(1, (val * 48 / 127) - 24); break;  // Arp Step 1
-        case 90:  engine.setArpOffset(2, (val * 48 / 127) - 24); break;  // Arp Step 2
-
-        case 92:  setScaled("trem_speed", val); break;      // Tremolo Freq
-
-        case 94:  // Hardwave Detune → fine tune channel 2
-            engine.setFineTune(1, (val * 100 / 127) - 50);
-            break;
-        case 95:  // SID Detune → fine tune channel 3
-            engine.setFineTune(2, (val * 100 / 127) - 50);
-            break;
-
+        case 30:  setScaled("nbend_depth", val); break;
+        case 31:  setScaled("nbend_speed", val); break;
+        case 64:  setScaled("env_period", val); break;
+        case 70:  setScaled("env_shape", val); break;
+        case 71:  setScaled("sbend_speed", val); break;
+        case 72:  setScaled("sbend_depth", val); break;
+        case 75:  setBool("wf_oneshot", val); break;
+        case 76:  setBool("ch1_env", val); break;
+        case 77:  setBool("arp_sync", val); break;
+        case 78:  setBool("sid_on", val); break;
+        case 80:  setBool("noise_on", val); break;
+        case 81:  setBool("wf_on", val); break;
+        case 82:  setBool("ch1_env", val); break;
+        case 83:  setBool("arp_on", val); break;
+        case 87:  setScaled("arp_speed", val); break;
+        case 88:  engine.setArpOffset(0, (val * 48 / 127) - 24); break;
+        case 89:  engine.setArpOffset(1, (val * 48 / 127) - 24); break;
+        case 90:  engine.setArpOffset(2, (val * 48 / 127) - 24); break;
+        case 92:  setScaled("trem_speed", val); break;
+        case 94:  engine.setFineTune(1, (val * 100 / 127) - 50); break;
+        case 95:  engine.setFineTune(2, (val * 100 / 127) - 50); break;
         default: break;
     }
 }
@@ -267,38 +299,37 @@ void YmvstProcessor::loadPreset(int index)
     {
         auto ch = CH_IDS[i];
         set("ch" + ch + "_on",    p.chOn[i] ? 1.f : 0.f);
-        set("ch" + ch + "_fine",  (float)p.chFine[i]);
+        set("ch" + ch + "_fine",  static_cast<float>(p.chFine[i]));
         set("ch" + ch + "_tone",  p.chTone[i] ? 1.f : 0.f);
         set("ch" + ch + "_noise", p.chNoise[i] ? 1.f : 0.f);
         set("ch" + ch + "_env",   p.chEnv[i] ? 1.f : 0.f);
     }
 
-    set("main_tune",   (float)p.mainTune);
+    set("main_tune",   static_cast<float>(p.mainTune));
     set("noise_on",    p.noiseOn ? 1.f : 0.f);
-    set("noise_freq",  (float)p.noiseFreq);
-    set("env_shape",   (float)p.envShape);
-    set("env_period",  (float)p.envPeriod);
+    set("noise_freq",  static_cast<float>(p.noiseFreq));
+    set("env_shape",   static_cast<float>(p.envShape));
+    set("env_period",  static_cast<float>(p.envPeriod));
     set("arp_on",      p.arpOn ? 1.f : 0.f);
     set("arp_sync",    p.arpSync ? 1.f : 0.f);
-    set("arp_speed",   (float)p.arpSpeed);
-    set("arp_length",  (float)p.arpLength);
-    set("arp_t1",      (float)p.arpT1);
+    set("arp_speed",   static_cast<float>(p.arpSpeed));
+    set("arp_length",  static_cast<float>(p.arpLength));
+    set("arp_t1",      static_cast<float>(p.arpT1));
     set("wf_on",       p.wfOn ? 1.f : 0.f);
     set("wf_oneshot",  p.wfOneShot ? 1.f : 0.f);
-    set("wf_speed",    (float)p.wfSpeed);
-    set("wf_length",   (float)p.wfLength);
+    set("wf_speed",    static_cast<float>(p.wfSpeed));
+    set("wf_length",   static_cast<float>(p.wfLength));
     set("porta_on",    p.portaOn ? 1.f : 0.f);
-    set("porta_rate",  (float)p.portaRate);
-    set("sbend_depth", (float)p.sBendDepth);
-    set("sbend_speed", (float)p.sBendSpeed);
-    set("nbend_depth", (float)p.nBendDepth);
-    set("nbend_speed", (float)p.nBendSpeed);
-    set("trem_depth",  (float)p.tremDepth);
-    set("trem_speed",  (float)p.tremSpeed);
+    set("porta_rate",  static_cast<float>(p.portaRate));
+    set("sbend_depth", static_cast<float>(p.sBendDepth));
+    set("sbend_speed", static_cast<float>(p.sBendSpeed));
+    set("nbend_depth", static_cast<float>(p.nBendDepth));
+    set("nbend_speed", static_cast<float>(p.nBendSpeed));
+    set("trem_depth",  static_cast<float>(p.tremDepth));
+    set("trem_speed",  static_cast<float>(p.tremSpeed));
     set("sid_on",      p.sidOn ? 1.f : 0.f);
     set("poly_on",     p.polyOn ? 1.f : 0.f);
 
-    // Load waveform data directly into engine
     for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
         engine.setWaveformValue(i, p.waveform[i]);
 }
@@ -312,6 +343,10 @@ void YmvstProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     auto state = parameters.copyState();
 
+    // Save current preset index
+    state.setProperty("currentPreset", currentPreset, nullptr);
+
+    // Save waveform data
     juce::ValueTree wfData("WAVEFORM");
     auto& wf = engine.getWaveformData();
     for (int i = 0; i < YmEngine::WAVEFORM_SIZE; ++i)
@@ -330,6 +365,11 @@ void YmvstProcessor::setStateInformation(const void* data, int sizeInBytes)
     auto state = juce::ValueTree::fromXml(*xml);
     if (!state.hasType(parameters.state.getType())) return;
 
+    // Restore preset index
+    currentPreset = state.getProperty("currentPreset", 0);
+    state.removeProperty("currentPreset", nullptr);
+
+    // Restore waveform data
     auto wfData = state.getChildWithName("WAVEFORM");
     if (wfData.isValid())
     {
@@ -339,8 +379,8 @@ void YmvstProcessor::setStateInformation(const void* data, int sizeInBytes)
             engine.setWaveformValue(i, val);
         }
     }
-
     state.removeChild(wfData, nullptr);
+
     parameters.replaceState(state);
 }
 

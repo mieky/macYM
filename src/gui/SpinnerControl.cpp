@@ -7,15 +7,17 @@ SpinnerControl::SpinnerControl(int minVal, int maxVal, int defaultVal)
 {
 }
 
-void SpinnerControl::paint(juce::Graphics& g)
+void SpinnerControl::resized()
 {
     auto b = getLocalBounds();
     int arrowW = 14;
-
     leftArrow  = b.removeFromLeft(arrowW);
     rightArrow = b.removeFromRight(arrowW);
     display    = b;
+}
 
+void SpinnerControl::paint(juce::Graphics& g)
+{
     // Arrow buttons
     drawBevel(g, leftArrow, true);
     drawBevel(g, rightArrow, true);
