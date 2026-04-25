@@ -99,7 +99,11 @@ void YmEngine::noteOff()
         voices[i].note = -1;
         voices[i].velocity = 0;
         ayumi_set_volume(&ay, i, 0);
+        ayumi_set_mixer(&ay, i, 1, 1, 0); // Mute tone, noise, and envelope
     }
+    // Reset envelope so it doesn't continue producing sound
+    ayumi_set_envelope_shape(&ay, 0);
+    prevEnvelopeShape = -1;
     noteStackSize = 0;
 }
 
