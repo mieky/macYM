@@ -16,6 +16,7 @@ public:
     ~YmvstEditor() override;
     void paint(juce::Graphics&) override;
     void resized() override;
+    void mouseDown(const juce::MouseEvent&) override;
     bool keyPressed(const juce::KeyPress& key) override;
     bool keyStateChanged(bool isKeyDown) override;
 
@@ -72,6 +73,10 @@ private:
 
     // Preset selector
     SpinnerControl presetSelector { 0, NUM_FACTORY_PRESETS - 1, 0 };
+
+    // Help
+    BeveledButton helpBtn      { "HELP", "HELP" };
+    bool showingHelp = false;
 
     // Bottom row
     BeveledButton panicBtn     { "PANIC", "PANIC" };
